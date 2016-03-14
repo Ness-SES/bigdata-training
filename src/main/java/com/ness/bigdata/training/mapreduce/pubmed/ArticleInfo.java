@@ -29,20 +29,40 @@ public class ArticleInfo implements WritableComparable<ArticleInfo> {
 		return filePath;
 	}
 
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
 	public String getArticleTitle() {
 		return articleTitle;
+	}
+
+	public void setArticleTitle(String articleTitle) {
+		this.articleTitle = articleTitle;
 	}
 
 	public Long getArticlePublisherId() {
 		return articlePublisherId;
 	}
 
+	public void setArticlePublisherId(Long articlePublisherId) {
+		this.articlePublisherId = articlePublisherId;
+	}
+
 	public String getArticleIssnPPub() {
 		return articleIssnPPub;
 	}
 
+	public void setArticleIssnPPub(String articleIssnPPub) {
+		this.articleIssnPPub = articleIssnPPub;
+	}
+
 	public Long getArticleDateAccepted() {
 		return articleDateAccepted;
+	}
+
+	public void setArticleDateAccepted(Long articleDateAccepted) {
+		this.articleDateAccepted = articleDateAccepted;
 	}
 
 	@Override
