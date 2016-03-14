@@ -4,6 +4,8 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.hadoop.io.WritableComparable;
 
 public class ArticleInfo implements WritableComparable<ArticleInfo> {
@@ -142,5 +144,15 @@ public class ArticleInfo implements WritableComparable<ArticleInfo> {
 		return "ArticleInfo [filePath=" + filePath + ", articleTitle=" + articleTitle + ", articlePublisherId="
 				+ articlePublisherId + ", articleIssnPPub=" + articleIssnPPub + ", articleDateAccepted="
 				+ articleDateAccepted + "]";
+	}
+	
+	public GenericRecord toAvroGenericRecord() {
+        GenericRecord genericRecord = new GenericData.Record(XmlParserJob.SCHEMA);
+        genericRecord.put("filePath", filePath);
+        genericRecord.put("articleTitle", articleTitle);
+        genericRecord.put("articlePublisherId", articlePublisherId);
+        genericRecord.put("articleIssnPPub", articleIssnPPub);
+        genericRecord.put("articleDateAccepted", articleDateAccepted);
+        return genericRecord;
 	}
 }

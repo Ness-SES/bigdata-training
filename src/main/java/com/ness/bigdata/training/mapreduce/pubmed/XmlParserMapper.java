@@ -16,7 +16,9 @@ public class XmlParserMapper extends Mapper<Object, Text, IntWritable, ArticleIn
 	@Override
 	protected void map(Object key, Text value, Mapper<Object, Text, IntWritable, ArticleInfo>.Context context)
 			throws IOException, InterruptedException {
-		String filePath = value.toString();
+		String[] split = value.toString().split("\t");
+        String filePath = split[1];
+		
 		XmlParser fileParser = parseFile(new Path(filePath), context.getConfiguration());
 		ArticleInfo articleInfo = new ArticleInfo(filePath, fileParser.getTitle(), fileParser.getPublisherId(),
 				fileParser.getIssnPPub(), fileParser.getAcceptedDate());
