@@ -57,10 +57,10 @@ public class XmlParser {
 			title = (String) XPATH_TITLE.evaluate(doc, XPathConstants.STRING);
 			issnPPub = (String) XPATH_ISSN_PPUB.evaluate(doc, XPathConstants.STRING);
 			publisherId = ((Double) XPTH_PUBLISHER_ID.evaluate(doc, XPathConstants.NUMBER)).longValue();
-			double day = (Double) XPATH_ACCEPTED_DAY.evaluate(doc, XPathConstants.NUMBER);
-			double month = (Double) XPATH_ACCEPTED_MONTH.evaluate(doc, XPathConstants.NUMBER);
-			double year = (Double) XPATH_ACCEPTED_YEAR.evaluate(doc, XPathConstants.NUMBER);
-			acceptedDate = toDate(day, month, year);
+			double acceptedDay = (Double) XPATH_ACCEPTED_DAY.evaluate(doc, XPathConstants.NUMBER);
+			double acceptedMonth = (Double) XPATH_ACCEPTED_MONTH.evaluate(doc, XPathConstants.NUMBER);
+			double acceptedYear = (Double) XPATH_ACCEPTED_YEAR.evaluate(doc, XPathConstants.NUMBER);
+			acceptedDate = toDate(acceptedDay, acceptedMonth, acceptedYear);
 		} catch (SAXException | IOException | XPathExpressionException e) {
 			throw new RuntimeException(e);
 		}

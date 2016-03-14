@@ -16,24 +16,24 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 public class XmlParserTest {
-	private InputStream stream;
+    private InputStream stream;
 
-	@Before
-	public void setUp() throws IOException, XPathExpressionException, SAXException {
-		stream = new FileInputStream(new File("src/test/resources/3_Biotech_2011_Dec_13_1(4)_217-225.xml"));
-	}
+    @Before
+    public void setUp() throws IOException, XPathExpressionException, SAXException {
+        stream = new FileInputStream(new File("src/test/resources/3_Biotech_2011_Dec_13_1(4)_217-225.xml"));
+    }
 
-	@Test
-	public void testParse() throws XPathExpressionException, SAXException, IOException {
-		XmlParser parser = new XmlParser(stream);
-		assertThat(parser.getTitle(), equalTo(
-				"Evaluation of indigenous Trichoderma isolates from Manipur as biocontrol agent against Pythium aphanidermatum on common beans"));
-		assertThat(parser.getIssnPPub(), equalTo("2190-572X"));
-		assertThat(parser.getPublisherId(), equalTo(27L));
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(parser.getAcceptedDate());
-		assertThat(calendar.get(Calendar.DAY_OF_MONTH), equalTo(28));
-		assertThat(calendar.get(Calendar.MONTH) + 1, equalTo(9));
-		assertThat(calendar.get(Calendar.YEAR), equalTo(2011));
-	}
+    @Test
+    public void testParse() throws XPathExpressionException, SAXException, IOException {
+        XmlParser parser = new XmlParser(stream);
+        assertThat(parser.getTitle(), equalTo(
+                "Evaluation of indigenous Trichoderma isolates from Manipur as biocontrol agent against Pythium aphanidermatum on common beans"));
+        assertThat(parser.getIssnPPub(), equalTo("2190-572X"));
+        assertThat(parser.getPublisherId(), equalTo(27L));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(parser.getAcceptedDate());
+        assertThat(calendar.get(Calendar.DAY_OF_MONTH), equalTo(28));
+        assertThat(calendar.get(Calendar.MONTH) + 1, equalTo(9));
+        assertThat(calendar.get(Calendar.YEAR), equalTo(2011));
+    }
 }

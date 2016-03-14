@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.hadoop.io.AvroSerialization;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.avro.mapred.AvroValue;
@@ -15,7 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class XmlParserReducerTest {
-	private ReduceDriver<IntWritable, ArticleInfo, AvroKey<Integer>, AvroValue<ArticleInfo>> reduceDriver;
+	private ReduceDriver<IntWritable, ArticleInfo, AvroKey<Integer>, AvroValue<GenericRecord>> reduceDriver;
 
 	@Before
 	public void setup() {
@@ -42,6 +43,6 @@ public class XmlParserReducerTest {
 				"Evaluation of indigenous Trichoderma isolates from Manipur as biocontrol agent against Pythium aphanidermatum on common beans",
 				27L, "2190-572X", calendar.getTimeInMillis());
 		reduceDriver.withInput(new IntWritable(1), Arrays.asList(articleInfo))
-				.withOutput(new AvroKey<Integer>(1), new AvroValue<ArticleInfo>(articleInfo)).runTest();
+				.withOutput(new AvroKey<Integer>(1), new AvroValue<GenericRecord>(articleInfo.toAvroGenericRecord())).runTest();
 	}
 }

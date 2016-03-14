@@ -1,0 +1,10 @@
+{
+"type": "record",
+"name": "ArticleInfo",
+"fields": [
+   {"name": "filePath", "type": "string"},
+   {"name": "articleTitle", "type": "string"},
+   {"name": "articlePublisherId", "type": "long"},
+   {"name": "articleIssnPPub", "type": "string"},
+   {"name": "articleDateAccepted", "type": "long"}]
+}
