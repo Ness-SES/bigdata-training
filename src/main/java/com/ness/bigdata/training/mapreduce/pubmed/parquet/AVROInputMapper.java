@@ -9,13 +9,12 @@ import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import com.ness.bigdata.training.mapreduce.pubmed.ArticleInfo;
 
-public class AVROInputMapper extends Mapper<AvroKey<GenericRecord>, NullWritable, ArticleInfo, IntWritable> {
+public class AVROInputMapper extends Mapper<AvroKey<GenericRecord>, NullWritable, ArticleInfo, NullWritable> {
 
 	private static Schema schema = null;
 	private static List<String> schemaFields;
@@ -32,7 +31,7 @@ public class AVROInputMapper extends Mapper<AvroKey<GenericRecord>, NullWritable
 			return;
 		}
 		ArticleInfo info = instantiateData(key);
-		context.write(info, new IntWritable(1));
+		context.write(info, NullWritable.get());
 	}
 
 	private void loadSchema(Context context) {

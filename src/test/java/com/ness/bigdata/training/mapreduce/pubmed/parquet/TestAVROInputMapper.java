@@ -30,7 +30,7 @@ public class TestAVROInputMapper {
 	private static final String ARTICLE_ISSN_P_PUB = "articleIssnPPub";
 	private static final String ARTICLE_DATE_ACCEPTED = "articleDateAccepted";
 
-	private MapDriver<AvroKey<GenericRecord>, NullWritable, ArticleInfo, IntWritable> mapDriver;
+	private MapDriver<AvroKey<GenericRecord>, NullWritable, ArticleInfo, NullWritable> mapDriver;
 	private GenericRecord data1;
 	private GenericRecord data2;
 	private ArticleInfo expectedData1;
@@ -79,8 +79,8 @@ public class TestAVROInputMapper {
 		mapDriver.withInput(new AvroKey<GenericRecord>(data1), NullWritable.get());
 		mapDriver.withInput(new AvroKey<GenericRecord>(data2), NullWritable.get());
 
-		mapDriver.withOutput(expectedData1, new IntWritable(1));
-		mapDriver.withOutput(expectedData2, new IntWritable(1));
+		mapDriver.withOutput(expectedData1, NullWritable.get());
+		mapDriver.withOutput(expectedData2, NullWritable.get());
 
 		mapDriver.runTest();
 	}
