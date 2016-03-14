@@ -8,6 +8,7 @@ import org.apache.avro.mapreduce.AvroJob;
 import org.apache.avro.mapreduce.AvroKeyInputFormat;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -35,8 +36,13 @@ public class AVROToParquetEngine extends Configured implements Tool {
 
 	@Override
 	public int run(String[] args) throws Exception {
-		Configuration config = new Configuration();
+        		Configuration config = new Configuration();
 		config.set(Constants.SCHEMA_KEY, SCHEMA.toString());
+
+		FileSystem fs = FileSystem.get(config);
+		if (fs.exists(new Path(args[1]))) {
+			fs.delete(new Path(args[1]), true);
+		}
 
 		Job job = Job.getInstance(config, AVROToParquetEngine.class.getSimpleName());
 		job.setJarByClass(AVROToParquetEngine.class);
