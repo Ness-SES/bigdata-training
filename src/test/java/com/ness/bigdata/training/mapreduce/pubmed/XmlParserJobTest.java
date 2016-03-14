@@ -60,7 +60,7 @@ public class XmlParserJobTest {
         newIOSerializations[newIOSerializations.length - 1] = AvroSerialization.class.getName();
 
         driverConfiguration.setStrings("io.serializations", newIOSerializations);
-        driverConfiguration.set("avro.serialization.value.writer.schema", XmlParserTestUtils.getArticleInfoSchema().toString());
+        driverConfiguration.set("avro.serialization.value.writer.schema", XmlParserJob.SCHEMA.toString());
         driverConfiguration.set("avro.serialization.key.writer.schema", Schema.create(Schema.Type.INT).toString(true));
     }
 
