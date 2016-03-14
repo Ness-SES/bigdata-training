@@ -57,14 +57,15 @@ public class XmlParserMapperTest {
 
 	@Test
 	public void test() throws IOException {
-		String filePath = "/user/ubuntu/datasets/pubmed/unzipped/unzipped.A-B/3_Biotech/3_Biotech_2011_Dec_13_1(4)_217-225.nxml";
+        String filePath = "/user/ubuntu/datasets/pubmed/unzipped/unzipped.A-B/3_Biotech/3_Biotech_2011_Dec_13_1(4)_217-225.nxml";
+        String line = "1\t" + filePath;
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(2011, 9 - 1, 28, 0, 0, 0);
 		calendar.set(Calendar.MILLISECOND, 0);
 		ArticleInfo expectedArticleInfo = new ArticleInfo(filePath,
 				"Evaluation of indigenous Trichoderma isolates from Manipur as biocontrol agent against Pythium aphanidermatum on common beans",
 				27L, "2190-572X", calendar.getTimeInMillis());
-		mapDriver.withInput(NullWritable.get(), new Text(filePath)).withOutput(new IntWritable(1), expectedArticleInfo)
+		mapDriver.withInput(NullWritable.get(), new Text(line)).withOutput(new IntWritable(1), expectedArticleInfo)
 				.runTest();
 	}
 }
