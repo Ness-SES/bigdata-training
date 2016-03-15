@@ -37,8 +37,7 @@ public class AVROInputMapper
 	protected void map(AvroKey<GenericRecord> key, NullWritable value, Context context)
 			throws IOException, InterruptedException {
 		initializeSchemas(key.datum(), context.getConfiguration());
-		boolean dataInstantiated = instantiateData(key.datum(), context.getConfiguration());
-		if (true == dataInstantiated) {
+		if (true == instantiateData(key.datum(), context.getConfiguration())) {
 			context.write(resultedData, NullWritable.get());
 		}
 	}
@@ -91,15 +90,6 @@ public class AVROInputMapper
 		}
 		return dataInstantiated;
 	}
-
-	/*
-	 * private void setValue(ArticleInfo object, String field, Object value) {
-	 * Class<?> clazz = object.getClass(); try { java.lang.reflect.Field
-	 * objField = clazz.getDeclaredField(field); objField.setAccessible(true);
-	 * objField.set(object, value); } catch (NoSuchFieldException |
-	 * SecurityException | IllegalArgumentException | IllegalAccessException e)
-	 * { } }
-	 */
 
 	private void createParquetSchema(Configuration configuration) {
 		if (null == schema || null == schema.getFields() || schema.getFields().isEmpty()) {
