@@ -1,10 +1,5 @@
 package com.ness.bigdata.training.mapreduce.pubmed.parquet;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.avro.Schema;
-import org.apache.avro.mapreduce.AvroJob;
 import org.apache.avro.mapreduce.AvroKeyInputFormat;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -22,22 +17,9 @@ import com.ness.bigdata.training.mapreduce.pubmed.ArticleInfo;
 
 public class AVROToParquetEngine extends Configured implements Tool {
 
-	static final Schema SCHEMA;
-
-	static {
-		try {
-			InputStream resourceAsStream = Thread.currentThread().getContextClassLoader()
-					.getResourceAsStream("ArticleInfo.avsc");
-			SCHEMA = new Schema.Parser().parse(resourceAsStream);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	@Override
 	public int run(String[] args) throws Exception {
-        		Configuration config = new Configuration();
-		config.set(Constants.SCHEMA_KEY, SCHEMA.toString());
+		Configuration config = new Configuration();
 
 		FileSystem fs = FileSystem.get(config);
 		if (fs.exists(new Path(args[1]))) {
@@ -48,7 +30,6 @@ public class AVROToParquetEngine extends Configured implements Tool {
 		job.setJarByClass(AVROToParquetEngine.class);
 		job.setInputFormatClass(AvroKeyInputFormat.class);
 		job.setMapperClass(AVROInputMapper.class);
-		AvroJob.setInputKeySchema(job, SCHEMA);
 		job.setMapOutputKeyClass(ArticleInfo.class);
 		job.setMapOutputValueClass(NullWritable.class);
 		job.setReducerClass(ParquetOutputReducer.class);
@@ -65,7 +46,7 @@ public class AVROToParquetEngine extends Configured implements Tool {
 	}
 
 	public static void main(String[] args) throws Exception {
-		if (3 != args.length || null == SCHEMA) {
+		if (3 != args.length) {
 			System.exit(0);
 		}
 		int res = ToolRunner.run(new AVROToParquetEngine(), args);

@@ -8,7 +8,6 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.hadoop.io.AvroSerialization;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mrunit.mapreduce.MapDriver;
 import org.junit.Before;
@@ -41,7 +40,7 @@ public class TestAVROInputMapper {
 		mapDriver = MapDriver.newMapDriver(new AVROInputMapper());
 
 		Configuration driverConfiguration = mapDriver.getConfiguration();
-		driverConfiguration.set(Constants.SCHEMA_KEY, SCHEMA.toString());
+//		driverConfiguration.set(Constants.SCHEMA_KEY, SCHEMA.toString());
 
 		String[] ioSerializations = driverConfiguration.getStrings("io.serializations");
 		String[] newIOSerializations = new String[ioSerializations.length + 1];
