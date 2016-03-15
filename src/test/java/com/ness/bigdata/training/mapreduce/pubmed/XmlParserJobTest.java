@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Calendar;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
@@ -16,9 +15,11 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mrunit.mapreduce.MapReduceDriver;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,25 +32,34 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(FileSystem.class)
 @RunWith(PowerMockRunner.class)
 public class XmlParserJobTest {
-    private MapReduceDriver<Object, Text, IntWritable, ArticleInfo, AvroKey<Integer>, AvroValue<GenericRecord>> mapReduceDriver;
+    private MapReduceDriver<Object, Text, IntWritable, MapWritable, AvroKey<Integer>, AvroValue<GenericRecord>> mapReduceDriver;
 
     @Mock
     private FileSystem fileSystemMock;
 
     @Mock
-    private FSDataInputStream fsDataInputStreamMock;
+    private FSDataInputStream xmlFSDataInputStreamMock;
 
-    private InputStream stream;
+    @Mock
+    private FSDataInputStream avsc2xmlPropertiesFSDataInputStreamMock;
+
+    private InputStream xmlStream;
+    private InputStream avsc2xmlPropertiesStream;
 
     @Before
-    public void setup() throws IOException {
+    public void setUp() throws IOException {
+        xmlStream = new FileInputStream(new File(TestData.XML));
+        avsc2xmlPropertiesStream = new FileInputStream(new File(TestData.AVSC2XPATH_PROPERTIES));
+
         PowerMockito.mockStatic(FileSystem.class);
         PowerMockito.when(FileSystem.get(Mockito.any(Configuration.class))).thenReturn(fileSystemMock);
 
-        Mockito.when(fileSystemMock.open(Mockito.any(Path.class))).thenReturn(fsDataInputStreamMock);
+        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_XML))).thenReturn(xmlFSDataInputStreamMock);
+        Mockito.when(xmlFSDataInputStreamMock.getWrappedStream()).thenReturn(xmlStream);
 
-        stream = new FileInputStream(new File("src/test/resources/3_Biotech_2011_Dec_13_1(4)_217-225.xml"));
-        Mockito.when(fsDataInputStreamMock.getWrappedStream()).thenReturn(stream);
+        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_AVSC2XPATH_PROPERTIES)))
+                .thenReturn(avsc2xmlPropertiesFSDataInputStreamMock);
+        Mockito.when(avsc2xmlPropertiesFSDataInputStreamMock.getWrappedStream()).thenReturn(avsc2xmlPropertiesStream);
 
         mapReduceDriver = MapReduceDriver.newMapReduceDriver(new XmlParserMapper(), new XmlParserReducer());
         Configuration driverConfiguration = mapReduceDriver.getConfiguration();
@@ -60,21 +70,22 @@ public class XmlParserJobTest {
         newIOSerializations[newIOSerializations.length - 1] = AvroSerialization.class.getName();
 
         driverConfiguration.setStrings("io.serializations", newIOSerializations);
-        driverConfiguration.set("avro.serialization.value.writer.schema", XmlParserJob.SCHEMA.toString());
+        driverConfiguration.set("avro.serialization.value.writer.schema", TestData.AVRO_SCHEMA.toString());
         driverConfiguration.set("avro.serialization.key.writer.schema", Schema.create(Schema.Type.INT).toString(true));
+        
+        driverConfiguration.set(Constants.CONFIG_KEY_AVRO_2_XPATH_MAPPING_FILE_PATH,
+                TestData.DUMMY_HDFS_PATH_AVSC2XPATH_PROPERTIES);
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        xmlStream.close();
+        avsc2xmlPropertiesStream.close();
     }
 
     @Test
     public void testMapReduce() throws IOException {
-        String filePath = "/user/ubuntu/datasets/pubmed/unzipped/unzipped.A-B/3_Biotech/3_Biotech_2011_Dec_13_1(4)_217-225.nxml";
-        String line = "1\t" + filePath;
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2011, 9 - 1, 28, 0, 0, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        ArticleInfo expectedArticleInfo = new ArticleInfo(filePath,
-                "Evaluation of indigenous Trichoderma isolates from Manipur as biocontrol agent against Pythium aphanidermatum on common beans",
-                27L, "2190-572X", calendar.getTimeInMillis());
-        mapReduceDriver.withInput(NullWritable.get(), new Text(line)).withOutput(new AvroKey<Integer>(1),
-                new AvroValue<GenericRecord>(expectedArticleInfo.toAvroGenericRecord())).runTest();
+        mapReduceDriver.withInput(NullWritable.get(), new Text("1\t" + TestData.DUMMY_HDFS_PATH_XML)).withOutput(new AvroKey<Integer>(1),
+                new AvroValue<GenericRecord>(TestData.ARTICLE_INFO_GENERIC_RECORD)).runTest();
     }
 }
