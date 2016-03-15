@@ -46,6 +46,31 @@
             <version>1.7.6-cdh5.2.6</version>
             <classifier>hadoop2</classifier>
         </dependency>
+		<dependency>
+   			<groupId>com.twitter</groupId>
+   			<artifactId>parquet-common</artifactId>
+   			<version>1.5.0-cdh5.2.6</version>
+  		</dependency>
+  		<dependency>
+   			<groupId>com.twitter</groupId>
+   			<artifactId>parquet-encoding</artifactId>
+   			<version>1.5.0-cdh5.2.6</version>
+  		</dependency>
+  		<dependency>
+   			<groupId>com.twitter</groupId>
+   			<artifactId>parquet-column</artifactId>
+   			<version>1.5.0-cdh5.2.6</version>
+  		</dependency>
+   		<dependency>
+   			<groupId>com.twitter</groupId>
+   			<artifactId>parquet-hadoop</artifactId>
+   			<version>1.5.0-cdh5.2.6</version>
+  		</dependency>
+ 		<dependency>
+   			<groupId>org.apache.hive</groupId>
+   			<artifactId>hive-exec</artifactId>
+   			<version>0.13.1-cdh5.2.5</version>
+  		</dependency>
     </dependencies>
 
     <build>

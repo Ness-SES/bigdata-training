@@ -26,6 +26,10 @@ public class AVROToParquetEngine extends Configured implements Tool {
 			fs.delete(new Path(args[1]), true);
 		}
 
+		// config.set(ParquetOutputFormat.BLOCK_SIZE, Integer.toString(128 *
+		// 1024 * 1024));
+		// config.set(ParquetOutputFormat.COMPRESSION, "SNAPPY");
+
 		Job job = Job.getInstance(config, AVROToParquetEngine.class.getSimpleName());
 		job.setJarByClass(AVROToParquetEngine.class);
 		job.setInputFormatClass(AvroKeyInputFormat.class);
@@ -36,17 +40,23 @@ public class AVROToParquetEngine extends Configured implements Tool {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(NullWritable.class);
 
-		Integer reducers = Integer.valueOf(args[2]);
-		job.setNumReduceTasks(reducers);
+		if (3 == args.length) {
+			Integer reducers = Integer.valueOf(args[2]);
+			job.setNumReduceTasks(reducers);
+		}
 
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		// ParquetOutputFormat.setOutputPath(job, new Path(args[1]));
+
+		// ParquetOutputFormat.setWriteSupportClass(job,
+		// DataWritableWriteSupport.class);
 
 		return (job.waitForCompletion(true) ? 0 : 1);
 	}
 
 	public static void main(String[] args) throws Exception {
-		if (3 != args.length) {
+		if (2 > args.length) {
 			System.exit(0);
 		}
 		int res = ToolRunner.run(new AVROToParquetEngine(), args);
