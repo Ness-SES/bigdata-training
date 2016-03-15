@@ -39,20 +39,21 @@ public class FilesListerDriver extends Configured {
         String extraArgs[] = new GenericOptionsParser(configuration, args).getRemainingArgs();
         configuration.set(FileInputFormat.INPUT_DIR_RECURSIVE, Boolean.TRUE.toString());
 
-        FileSystem fileSystem = FileSystem.get(configuration);
-        Path tempFile = new Path("/tmp/" + UUID.randomUUID().toString());
+        try (FileSystem fileSystem = FileSystem.get(configuration)) {
+            if (fileSystem.exists(new Path(extraArgs[1]))) {
+                throw new IllegalArgumentException("Output path must not exist: " + extraArgs[1]);
+            }
 
-        if (fileSystem.exists(new Path(extraArgs[1]))) {
-            throw new IllegalArgumentException("Output path must not exist: " + extraArgs[1]);
-        }
+            Path tempFile = new Path("/tmp/" + UUID.randomUUID().toString());
 
-        try {
-            findFiles(fileSystem, new Path(extraArgs[0]), tempFile);
-            runMrJob(configuration, tempFile, new Path(extraArgs[1]));
+            try {
+                findFiles(fileSystem, new Path(extraArgs[0]), tempFile);
+                runMrJob(configuration, tempFile, new Path(extraArgs[1]));
 
-        } finally {
-            if (fileSystem.exists(tempFile)) {
-                fileSystem.delete(tempFile, false);
+            } finally {
+                if (fileSystem.exists(tempFile)) {
+                    fileSystem.delete(tempFile, false);
+                }
             }
         }
     }
