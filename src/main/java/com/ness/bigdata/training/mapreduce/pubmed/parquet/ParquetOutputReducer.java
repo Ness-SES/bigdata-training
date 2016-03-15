@@ -6,11 +6,13 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
-public class ParquetOutputReducer extends Reducer<AVROToParquetArrayWritable, NullWritable, Text, NullWritable> {
+public class ParquetOutputReducer extends Reducer<NullWritable, AVROToParquetArrayWritable, Text, NullWritable> {
 
 	@Override
-	protected void reduce(AVROToParquetArrayWritable key, Iterable<NullWritable> values, Context context)
+	protected void reduce(NullWritable key, Iterable<AVROToParquetArrayWritable> values, Context context)
 			throws IOException, InterruptedException {
-		context.write(new Text(key.toString()), NullWritable.get());
+		for (AVROToParquetArrayWritable resultedData : values) {
+			context.write(new Text(resultedData.toString()), NullWritable.get());
+		}
 	}
 }

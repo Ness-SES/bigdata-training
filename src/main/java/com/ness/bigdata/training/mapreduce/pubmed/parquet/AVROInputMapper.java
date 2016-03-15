@@ -22,7 +22,7 @@ import parquet.schema.PrimitiveType.PrimitiveTypeName;
 import parquet.schema.Type.Repetition;
 
 public class AVROInputMapper
-		extends Mapper<AvroKey<GenericRecord>, NullWritable, AVROToParquetArrayWritable, NullWritable> {
+		extends Mapper<AvroKey<GenericRecord>, NullWritable, NullWritable, AVROToParquetArrayWritable> {
 
 	private static Schema schema;
 	private static MessageType parquetSchema;
@@ -38,7 +38,7 @@ public class AVROInputMapper
 			throws IOException, InterruptedException {
 		initializeSchemas(key.datum(), context.getConfiguration());
 		if (true == instantiateData(key.datum(), context.getConfiguration())) {
-			context.write(resultedData, NullWritable.get());
+			context.write(NullWritable.get(), resultedData);
 		}
 	}
 

@@ -29,11 +29,14 @@ public class AVROToParquetEngine extends Configured implements Tool {
 		// config.set(ParquetOutputFormat.COMPRESSION, "SNAPPY");
 
 		Job job = Job.getInstance(config, AVROToParquetEngine.class.getSimpleName());
+
 		job.setJarByClass(AVROToParquetEngine.class);
 		job.setInputFormatClass(AvroKeyInputFormat.class);
+
 		job.setMapperClass(AVROInputMapper.class);
-		job.setMapOutputKeyClass(AVROToParquetArrayWritable.class);
-		job.setMapOutputValueClass(NullWritable.class);
+		job.setMapOutputKeyClass(NullWritable.class);
+		job.setMapOutputValueClass(AVROToParquetArrayWritable.class);
+
 		job.setReducerClass(ParquetOutputReducer.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(NullWritable.class);
