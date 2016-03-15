@@ -1,8 +1,6 @@
 package com.ness.bigdata.training.mapreduce.pubmed.parquet;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
@@ -11,21 +9,25 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriteSupport;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Mapper;
-
-import com.ness.bigdata.training.mapreduce.pubmed.ArticleInfo;
 
 import parquet.schema.MessageType;
 import parquet.schema.PrimitiveType;
 import parquet.schema.PrimitiveType.PrimitiveTypeName;
 import parquet.schema.Type.Repetition;
 
-public class AVROInputMapper extends Mapper<AvroKey<GenericRecord>, NullWritable, ArticleInfo, NullWritable> {
+public class AVROInputMapper
+		extends Mapper<AvroKey<GenericRecord>, NullWritable, AVROToParquetArrayWritable, NullWritable> {
 
-	private static ArticleInfo object = new ArticleInfo();
 	private static Schema schema;
 	private static MessageType parquetSchema;
+	private static AVROToParquetArrayWritable resultedData;
+	private static Writable[] resultedDataArray;
 
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
@@ -37,7 +39,7 @@ public class AVROInputMapper extends Mapper<AvroKey<GenericRecord>, NullWritable
 		initializeSchemas(key.datum(), context.getConfiguration());
 		boolean dataInstantiated = instantiateData(key.datum(), context.getConfiguration());
 		if (true == dataInstantiated) {
-			context.write(object, NullWritable.get());
+			context.write(resultedData, NullWritable.get());
 		}
 	}
 
@@ -58,38 +60,60 @@ public class AVROInputMapper extends Mapper<AvroKey<GenericRecord>, NullWritable
 		}
 		boolean dataInstantiated = false;
 		for (Field field : schema.getFields()) {
-			Object value = data.get(field.name());
-			if (null != value) {
-				setValue(object, field.name(), value);
-			} else {
-				setValue(object, field.name(), field.defaultValue());
+			switch (field.schema().getType()) {
+			case STRING:
+				String strValue = (String) data.get(field.name());
+				if (null != strValue) {
+					resultedDataArray[field.pos()] = new Text((String) data.get(field.name()));
+				}
+				break;
+			case LONG:
+				Long longValue = (Long) data.get(field.name());
+				if (null != longValue) {
+					resultedDataArray[field.pos()] = new LongWritable((Long) data.get(field.name()));
+				}
+				break;
+			case INT:
+				Integer intValue = (Integer) data.get(field.name());
+				if (null != intValue) {
+					resultedDataArray[field.pos()] = new IntWritable((Integer) data.get(field.name()));
+				}
+				break;
+			default:
+				break;
 			}
 			dataInstantiated = true;
+		}
+		if (true == dataInstantiated && null != resultedData) {
+			resultedData.set(resultedDataArray);
+		} else if (null == resultedData) {
+			dataInstantiated = false;
 		}
 		return dataInstantiated;
 	}
 
-	private void setValue(ArticleInfo object, String field, Object value) {
-		Class<?> clazz = object.getClass();
-		try {
-			java.lang.reflect.Field objField = clazz.getDeclaredField(field);
-			objField.setAccessible(true);
-			objField.set(object, value);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-		}
-	}
+	/*
+	 * private void setValue(ArticleInfo object, String field, Object value) {
+	 * Class<?> clazz = object.getClass(); try { java.lang.reflect.Field
+	 * objField = clazz.getDeclaredField(field); objField.setAccessible(true);
+	 * objField.set(object, value); } catch (NoSuchFieldException |
+	 * SecurityException | IllegalArgumentException | IllegalAccessException e)
+	 * { } }
+	 */
 
 	private void createParquetSchema(Configuration configuration) {
-		if (null == schema) {
+		if (null == schema || null == schema.getFields() || schema.getFields().isEmpty()) {
 			return;
 		}
-		List<parquet.schema.Type> types = new LinkedList<parquet.schema.Type>();
+		parquet.schema.Type[] types = new parquet.schema.Type[schema.getFields().size()];
 		for (Field field : schema.getFields()) {
 			parquet.schema.Type type = getType(field);
 			if (null != type) {
-				types.add(type);
+				types[field.pos()] = type;
 			}
 		}
+		resultedData = new AVROToParquetArrayWritable(Writable.class);
+		resultedDataArray = new Writable[types.length];
 		parquetSchema = new MessageType("pubmed", types);
 		DataWritableWriteSupport.setSchema(parquetSchema, configuration);
 	}
