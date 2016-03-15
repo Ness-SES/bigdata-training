@@ -22,9 +22,11 @@ public class TestData {
     
     public static final String DUMMY_HDFS_PATH_AVSC2XPATH_PROPERTIES = "/user/ubuntu/training/avsc2xpath.properties";
     public static final String DUMMY_HDFS_PATH_XML = "/user/ubuntu/datasets/pubmed/unzipped/unzipped.A-B/3_Biotech/3_Biotech_2011_Dec_13_1(4)_217-225.nxml";
+    public static final String DUMMY_HDFS_PATH_AVSC = "/user/ubuntu/training/ArticleInfo.avsc";
 
     public static final String AVSC2XPATH_PROPERTIES = "src/test/resources/avsc2xpath.properties";
     public static final String XML = "src/test/resources/3_Biotech_2011_Dec_13_1(4)_217-225.xml";
+    public static final String AVSC = "src/test/resources/ArticleInfo.avsc";
 
     public static final String ARTICLE_TITLE = "Evaluation of indigenous Trichoderma isolates from Manipur as biocontrol agent against Pythium aphanidermatum on common beans";
     public static final String ARTICLE_PUBLISHER_ID = "27";

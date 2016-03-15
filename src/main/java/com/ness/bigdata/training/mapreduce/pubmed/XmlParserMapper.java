@@ -11,13 +11,13 @@ import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-public class XmlParserMapper extends Mapper<Object, Text, IntWritable, MapWritable> {
+public class XmlParserMapper extends Mapper<Text, Text, IntWritable, MapWritable> {
     private final static IntWritable ONE = new IntWritable(1);
 
     @Override
-    protected void map(Object key, Text value, Mapper<Object, Text, IntWritable, MapWritable>.Context context)
+    protected void map(Text key, Text value, Mapper<Text, Text, IntWritable, MapWritable>.Context context)
             throws IOException, InterruptedException {
-        String xmlFilePath = value.toString().split("\t")[1];
+        String xmlFilePath = value.toString();
         MapWritable output = extractArticleInfo(xmlFilePath, context.getConfiguration());
         output.put(new Text(Constants.AVRO_FIELD_FILE_PATH), new Text(xmlFilePath));
         context.write(ONE, output);

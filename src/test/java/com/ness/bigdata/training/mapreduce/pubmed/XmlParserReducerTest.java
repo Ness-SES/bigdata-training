@@ -1,6 +1,9 @@
 package com.ness.bigdata.training.mapreduce.pubmed;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import org.apache.avro.Schema;
@@ -9,17 +12,46 @@ import org.apache.avro.hadoop.io.AvroSerialization;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.avro.mapred.AvroValue;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@PrepareForTest(FileSystem.class)
+@RunWith(PowerMockRunner.class)
 public class XmlParserReducerTest {
     private ReduceDriver<IntWritable, MapWritable, AvroKey<Integer>, AvroValue<GenericRecord>> reduceDriver;
 
+    @Mock
+    private FileSystem fileSystemMock;
+
+    @Mock
+    private FSDataInputStream avscFSDataInputStreamMock;
+
+    private InputStream avscStream;
+
     @Before
-    public void setup() {
+    public void setup() throws IOException {
+        avscStream = new FileInputStream(new File(TestData.AVSC));
+
+        PowerMockito.mockStatic(FileSystem.class);
+        PowerMockito.when(FileSystem.get(Mockito.any(Configuration.class))).thenReturn(fileSystemMock);
+
+        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_AVSC)))
+                .thenReturn(avscFSDataInputStreamMock);
+        Mockito.when(avscFSDataInputStreamMock.getWrappedStream()).thenReturn(avscStream);
+
         reduceDriver = ReduceDriver.newReduceDriver(new XmlParserReducer());
         Configuration driverConfiguration = reduceDriver.getConfiguration();
 
@@ -31,6 +63,12 @@ public class XmlParserReducerTest {
         driverConfiguration.setStrings("io.serializations", newIOSerializations);
         driverConfiguration.set("avro.serialization.value.writer.schema", TestData.AVRO_SCHEMA.toString(true));
         driverConfiguration.set("avro.serialization.key.writer.schema", Schema.create(Schema.Type.INT).toString(true));
+        driverConfiguration.set(Constants.CONFIG_KEY_AVRO_SCHEMA_FILE_PATH, TestData.DUMMY_HDFS_PATH_AVSC);
+    }
+    
+    @After
+    public void tearDown() throws IOException {
+        avscStream.close();
     }
 
     @Test

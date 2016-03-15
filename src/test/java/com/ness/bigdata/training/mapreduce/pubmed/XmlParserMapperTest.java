@@ -11,7 +11,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mrunit.mapreduce.MapDriver;
 import org.junit.After;
@@ -28,7 +27,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @RunWith(PowerMockRunner.class)
 public class XmlParserMapperTest {
 
-    private MapDriver<Object, Text, IntWritable, MapWritable> mapDriver;
+    private MapDriver<Text, Text, IntWritable, MapWritable> mapDriver;
 
     @Mock
     private FileSystem fileSystemMock;
@@ -70,7 +69,7 @@ public class XmlParserMapperTest {
 
     @Test
     public void testMapper() throws IOException {
-        mapDriver.withInput(NullWritable.get(), new Text("1\t" + TestData.DUMMY_HDFS_PATH_XML))
+        mapDriver.withInput(new Text("1"), new Text(TestData.DUMMY_HDFS_PATH_XML))
                 .withOutput(new IntWritable(1), TestData.ARTICLE_INFO_MAP).runTest();
     }
 }

@@ -16,7 +16,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mrunit.mapreduce.MapReduceDriver;
 import org.junit.After;
@@ -32,7 +31,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(FileSystem.class)
 @RunWith(PowerMockRunner.class)
 public class XmlParserJobTest {
-    private MapReduceDriver<Object, Text, IntWritable, MapWritable, AvroKey<Integer>, AvroValue<GenericRecord>> mapReduceDriver;
+    private MapReduceDriver<Text, Text, IntWritable, MapWritable, AvroKey<Integer>, AvroValue<GenericRecord>> mapReduceDriver;
 
     @Mock
     private FileSystem fileSystemMock;
@@ -43,13 +42,18 @@ public class XmlParserJobTest {
     @Mock
     private FSDataInputStream avsc2xmlPropertiesFSDataInputStreamMock;
 
+    @Mock
+    private FSDataInputStream avscFSDataInputStreamMock;
+
     private InputStream xmlStream;
     private InputStream avsc2xmlPropertiesStream;
+    private InputStream avscStream;
 
     @Before
     public void setUp() throws IOException {
         xmlStream = new FileInputStream(new File(TestData.XML));
         avsc2xmlPropertiesStream = new FileInputStream(new File(TestData.AVSC2XPATH_PROPERTIES));
+        avscStream = new FileInputStream(new File(TestData.AVSC));
 
         PowerMockito.mockStatic(FileSystem.class);
         PowerMockito.when(FileSystem.get(Mockito.any(Configuration.class))).thenReturn(fileSystemMock);
@@ -60,6 +64,10 @@ public class XmlParserJobTest {
         Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_AVSC2XPATH_PROPERTIES)))
                 .thenReturn(avsc2xmlPropertiesFSDataInputStreamMock);
         Mockito.when(avsc2xmlPropertiesFSDataInputStreamMock.getWrappedStream()).thenReturn(avsc2xmlPropertiesStream);
+
+        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_AVSC)))
+                .thenReturn(avscFSDataInputStreamMock);
+        Mockito.when(avscFSDataInputStreamMock.getWrappedStream()).thenReturn(avscStream);
 
         mapReduceDriver = MapReduceDriver.newMapReduceDriver(new XmlParserMapper(), new XmlParserReducer());
         Configuration driverConfiguration = mapReduceDriver.getConfiguration();
@@ -72,20 +80,22 @@ public class XmlParserJobTest {
         driverConfiguration.setStrings("io.serializations", newIOSerializations);
         driverConfiguration.set("avro.serialization.value.writer.schema", TestData.AVRO_SCHEMA.toString());
         driverConfiguration.set("avro.serialization.key.writer.schema", Schema.create(Schema.Type.INT).toString(true));
-        
         driverConfiguration.set(Constants.CONFIG_KEY_AVRO_2_XPATH_MAPPING_FILE_PATH,
                 TestData.DUMMY_HDFS_PATH_AVSC2XPATH_PROPERTIES);
+        driverConfiguration.set(Constants.CONFIG_KEY_AVRO_SCHEMA_FILE_PATH, TestData.DUMMY_HDFS_PATH_AVSC);
     }
 
     @After
     public void tearDown() throws IOException {
         xmlStream.close();
         avsc2xmlPropertiesStream.close();
+        avscStream.close();
     }
 
     @Test
     public void testMapReduce() throws IOException {
-        mapReduceDriver.withInput(NullWritable.get(), new Text("1\t" + TestData.DUMMY_HDFS_PATH_XML)).withOutput(new AvroKey<Integer>(1),
-                new AvroValue<GenericRecord>(TestData.ARTICLE_INFO_GENERIC_RECORD)).runTest();
+        mapReduceDriver.withInput(new Text("1"), new Text(TestData.DUMMY_HDFS_PATH_XML))
+                .withOutput(new AvroKey<Integer>(1), new AvroValue<GenericRecord>(TestData.ARTICLE_INFO_GENERIC_RECORD))
+                .runTest();
     }
 }

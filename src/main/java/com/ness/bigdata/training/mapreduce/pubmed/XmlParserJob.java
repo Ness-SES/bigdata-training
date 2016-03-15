@@ -25,7 +25,7 @@ public class XmlParserJob extends Configured {
 
         FileInputFormat.addInputPath(job, new Path(extraArgs[0]));
         FileOutputFormat.setOutputPath(job, new Path(extraArgs[1]));
-        
+
         job.setInputFormatClass(KeyValueTextInputFormat.class);
 
         job.setMapperClass(XmlParserMapper.class);
