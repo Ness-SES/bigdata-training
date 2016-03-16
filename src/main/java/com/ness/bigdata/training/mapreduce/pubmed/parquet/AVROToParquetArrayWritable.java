@@ -87,19 +87,6 @@ public class AVROToParquetArrayWritable implements Writable {
 	}
 
 	@Override
-	public String toString() {
-		if (null == this.values || 0 >= this.values.length) {
-			return null;
-		}
-		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < this.values.length; i++) {
-			builder.append((null != this.values[i]) ? this.values.toString() : "-");
-			builder.append("||");
-		}
-		return builder.toString();
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;

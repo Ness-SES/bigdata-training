@@ -5,13 +5,15 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriteSupport;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+
+import parquet.hadoop.ParquetOutputFormat;
 
 public class AVROToParquetEngine extends Configured implements Tool {
 
@@ -24,9 +26,8 @@ public class AVROToParquetEngine extends Configured implements Tool {
 			fs.delete(new Path(args[1]), true);
 		}
 
-		// config.set(ParquetOutputFormat.BLOCK_SIZE, Integer.toString(128 *
-		// 1024 * 1024));
-		// config.set(ParquetOutputFormat.COMPRESSION, "SNAPPY");
+		config.set(ParquetOutputFormat.BLOCK_SIZE, Integer.toString(128 * 1024 * 1024));
+		config.set(ParquetOutputFormat.COMPRESSION, "SNAPPY");
 
 		Job job = Job.getInstance(config, AVROToParquetEngine.class.getSimpleName());
 
@@ -47,11 +48,10 @@ public class AVROToParquetEngine extends Configured implements Tool {
 		}
 
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
-		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-		// ParquetOutputFormat.setOutputPath(job, new Path(args[1]));
+		// FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		ParquetOutputFormat.setOutputPath(job, new Path(args[1]));
 
-		// ParquetOutputFormat.setWriteSupportClass(job,
-		// DataWritableWriteSupport.class);
+		ParquetOutputFormat.setWriteSupportClass(job, DataWritableWriteSupport.class);
 
 		return (job.waitForCompletion(true) ? 0 : 1);
 	}
