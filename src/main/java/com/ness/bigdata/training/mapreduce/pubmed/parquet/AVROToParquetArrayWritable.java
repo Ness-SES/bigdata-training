@@ -10,27 +10,20 @@ import org.apache.hadoop.io.WritableFactories;
 
 public class AVROToParquetArrayWritable implements Writable {
 
-	private Class<? extends Writable> valueClass;
 	private Writable[] values;
+	private String strSchema;
 
 	public AVROToParquetArrayWritable() {
-		this(Writable.class);
 	}
 
-	public AVROToParquetArrayWritable(Class<? extends Writable> valueClass) {
-		if (valueClass == null) {
-			throw new IllegalArgumentException("null valueClass");
-		}
-		this.valueClass = valueClass;
-	}
-
-	public AVROToParquetArrayWritable(Class<? extends Writable> valueClass, Writable[] values) {
-		this(valueClass);
+	public AVROToParquetArrayWritable(Writable[] values, String strSchema) {
 		this.values = values;
+		this.strSchema = strSchema;
 	}
 
 	@Override
 	public void write(DataOutput out) throws IOException {
+		out.writeUTF(strSchema);
 		out.writeInt(values.length);
 		for (int i = 0; i < values.length; i++) {
 			out.writeUTF(values[i].getClass().getName());
@@ -41,6 +34,7 @@ public class AVROToParquetArrayWritable implements Writable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void readFields(DataInput in) throws IOException {
+		strSchema = in.readUTF();
 		values = new Writable[in.readInt()];
 		for (int i = 0; i < values.length; i++) {
 			String className = in.readUTF();
@@ -54,14 +48,6 @@ public class AVROToParquetArrayWritable implements Writable {
 		}
 	}
 
-	public Class<? extends Writable> getValueClass() {
-		return valueClass;
-	}
-
-	public void setValueClass(Class<? extends Writable> valueClass) {
-		this.valueClass = valueClass;
-	}
-
 	public Writable[] get() {
 		return values;
 	}
@@ -70,10 +56,27 @@ public class AVROToParquetArrayWritable implements Writable {
 		this.values = values;
 	}
 
+	public String getStrSchema() {
+		return strSchema;
+	}
+
+	public void setStrSchema(String strSchema) {
+		this.strSchema = strSchema;
+	}
+
+	@SuppressWarnings("unchecked")
 	public Object toArray() {
-		Object result = Array.newInstance(valueClass, values.length);
-		for (int i = 0; i < values.length; i++) {
-			Array.set(result, i, values[i]);
+		Object[] result = new Object[values.length];
+		try {
+			for (int i = 0; i < values.length; i++) {
+				Class<? extends Writable> clazz = (Class<? extends Writable>) Class
+						.forName(values[i].getClass().getName());
+				result[i] = WritableFactories.newInstance(clazz);
+			}
+			for (int i = 0; i < values.length; i++) {
+				Array.set(result, i, values[i]);
+			}
+		} catch (ClassNotFoundException e) {
 		}
 		return result;
 	}

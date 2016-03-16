@@ -8,7 +8,6 @@ import org.apache.avro.Schema.Type;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriteSupport;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -46,10 +45,9 @@ public class AVROInputMapper
 		if (null == data || null == data.getSchema() || null == configuration) {
 			return;
 		}
-		if (null == schema) {
-			schema = data.getSchema();
-			createParquetSchema(configuration);
-		}
+
+		schema = data.getSchema();
+		createParquetSchema();
 	}
 
 	private boolean instantiateData(GenericRecord data, Configuration configuration) {
@@ -85,13 +83,14 @@ public class AVROInputMapper
 		}
 		if (true == dataInstantiated && null != resultedData) {
 			resultedData.set(resultedDataArray);
+			resultedData.setStrSchema(parquetSchema.toString());
 		} else if (null == resultedData) {
 			dataInstantiated = false;
 		}
 		return dataInstantiated;
 	}
 
-	private void createParquetSchema(Configuration configuration) {
+	private void createParquetSchema() {
 		if (null == schema || null == schema.getFields() || schema.getFields().isEmpty()) {
 			return;
 		}
@@ -102,10 +101,9 @@ public class AVROInputMapper
 				types[field.pos()] = type;
 			}
 		}
-		resultedData = new AVROToParquetArrayWritable(Writable.class);
-		resultedDataArray = new Writable[types.length];
-		parquetSchema = new MessageType("pubmed", types);
-		DataWritableWriteSupport.setSchema(parquetSchema, configuration);
+		resultedData = new AVROToParquetArrayWritable();
+		resultedDataArray = new Writable[schema.getFields().size()];
+		parquetSchema = new MessageType(schema.getFullName(), types);
 	}
 
 	private PrimitiveType getType(Field field) {
