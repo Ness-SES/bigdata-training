@@ -1,10 +1,16 @@
 package com.ness.bigdata.training.mapreduce.pubmed;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mrunit.mapreduce.MapDriver;
 import org.junit.After;
@@ -17,56 +23,53 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Calendar;
-
 @PrepareForTest(FileSystem.class)
 @RunWith(PowerMockRunner.class)
 public class XmlParserMapperTest {
-    private MapDriver<Text, Text, IntWritable, ArticleInfo> mapDriver;
+
+    private MapDriver<Text, Text, IntWritable, MapWritable> mapDriver;
 
     @Mock
     private FileSystem fileSystemMock;
 
     @Mock
-    private FSDataInputStream fsDataInputStreamMock;
+    private FSDataInputStream xmlFSDataInputStreamMock;
 
-    private InputStream stream;
+    @Mock
+    private FSDataInputStream avsc2xmlPropertiesFSDataInputStreamMock;
+
+    private InputStream xmlStream;
+    private InputStream avsc2xmlPropertiesStream;
 
     @Before
     public void setUp() throws IOException {
+        xmlStream = new FileInputStream(new File(TestData.XML));
+        avsc2xmlPropertiesStream = new FileInputStream(new File(TestData.AVSC2XPATH_PROPERTIES));
+
         PowerMockito.mockStatic(FileSystem.class);
         PowerMockito.when(FileSystem.get(Mockito.any(Configuration.class))).thenReturn(fileSystemMock);
 
-        Mockito.when(fileSystemMock.open(Mockito.any(Path.class))).thenReturn(fsDataInputStreamMock);
+        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_XML))).thenReturn(xmlFSDataInputStreamMock);
+        Mockito.when(xmlFSDataInputStreamMock.getWrappedStream()).thenReturn(xmlStream);
 
-        stream = new FileInputStream(new File("src/test/resources/3_Biotech_2011_Dec_13_1(4)_217-225.xml"));
-        Mockito.when(fsDataInputStreamMock.getWrappedStream()).thenReturn(stream);
+        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_AVSC2XPATH_PROPERTIES)))
+                .thenReturn(avsc2xmlPropertiesFSDataInputStreamMock);
+        Mockito.when(avsc2xmlPropertiesFSDataInputStreamMock.getWrappedStream()).thenReturn(avsc2xmlPropertiesStream);
 
         mapDriver = MapDriver.newMapDriver(new XmlParserMapper());
+        mapDriver.getConfiguration().set(Constants.CONFIG_KEY_AVRO_2_XPATH_MAPPING_FILE_PATH,
+                TestData.DUMMY_HDFS_PATH_AVSC2XPATH_PROPERTIES);
     }
 
     @After
     public void tearDown() throws IOException {
-        stream.close();
+        xmlStream.close();
+        avsc2xmlPropertiesStream.close();
     }
 
     @Test
-    public void test() throws IOException {
-        Long fileSize = 1234L;
-        String filePath = "/user/ubuntu/datasets/pubmed/unzipped/unzipped.A-B/3_Biotech/3_Biotech_2011_Dec_13_1(4)_217-225.nxml";
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2011, Calendar.SEPTEMBER, 28, 0, 0, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        ArticleInfo expectedArticleInfo = new ArticleInfo(filePath, "Evaluation of indigenous Trichoderma isolates from Manipur as biocontrol agent against Pythium aphanidermatum on common beans", 27L, "2190-572X", calendar.getTimeInMillis());
-
-        mapDriver
-                .withInput(new Text(fileSize.toString()), new Text(filePath))
-                .withOutput(new IntWritable(1), expectedArticleInfo)
-                .runTest();
+    public void testMapper() throws IOException {
+        mapDriver.withInput(new Text("1"), new Text(TestData.DUMMY_HDFS_PATH_XML))
+                .withOutput(new IntWritable(1), TestData.ARTICLE_INFO_MAP).runTest();
     }
 }

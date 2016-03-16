@@ -7,27 +7,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 public class XmlParserJob extends Configured {
-    static final Schema SCHEMA;
-
-    static {
-        try {
-            InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("ArticleInfo.avsc");
-            SCHEMA = new Schema.Parser().parse(resourceAsStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
         String extraArgs[] = new GenericOptionsParser(conf, args).getRemainingArgs();
@@ -43,13 +30,13 @@ public class XmlParserJob extends Configured {
 
         job.setMapperClass(XmlParserMapper.class);
         job.setMapOutputKeyClass(IntWritable.class);
-        job.setMapOutputValueClass(ArticleInfo.class);
+        job.setMapOutputValueClass(MapWritable.class);
 
         job.setReducerClass(XmlParserReducer.class);
         job.setOutputFormatClass(AvroKeyValueOutputFormat.class);
         AvroJob.setOutputKeySchema(job, Schema.create(Schema.Type.INT));
-        AvroJob.setOutputValueSchema(job, SCHEMA);
-
+        Schema schema = AvroSchemaLoader.getInstance(conf, Constants.CONFIG_KEY_AVRO_SCHEMA_FILE_PATH).getSchema();
+        AvroJob.setOutputValueSchema(job, schema);
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }
