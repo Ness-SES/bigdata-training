@@ -26,7 +26,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(FileSystem.class)
 @RunWith(PowerMockRunner.class)
 public class XmlParserMapperTest {
-
     private MapDriver<Text, Text, IntWritable, MapWritable> mapDriver;
 
     @Mock
@@ -36,15 +35,15 @@ public class XmlParserMapperTest {
     private FSDataInputStream xmlFSDataInputStreamMock;
 
     @Mock
-    private FSDataInputStream avsc2xmlPropertiesFSDataInputStreamMock;
+    private FSDataInputStream fieldMetaFSDataInputStreamMock;
 
     private InputStream xmlStream;
-    private InputStream avsc2xmlPropertiesStream;
+    private InputStream fieldMetaStream;
 
     @Before
     public void setUp() throws IOException {
         xmlStream = new FileInputStream(new File(TestData.XML));
-        avsc2xmlPropertiesStream = new FileInputStream(new File(TestData.AVSC2XPATH_PROPERTIES));
+        fieldMetaStream = new FileInputStream(new File(TestData.FIELD_META));
 
         PowerMockito.mockStatic(FileSystem.class);
         PowerMockito.when(FileSystem.get(Mockito.any(Configuration.class))).thenReturn(fileSystemMock);
@@ -52,19 +51,18 @@ public class XmlParserMapperTest {
         Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_XML))).thenReturn(xmlFSDataInputStreamMock);
         Mockito.when(xmlFSDataInputStreamMock.getWrappedStream()).thenReturn(xmlStream);
 
-        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_AVSC2XPATH_PROPERTIES)))
-                .thenReturn(avsc2xmlPropertiesFSDataInputStreamMock);
-        Mockito.when(avsc2xmlPropertiesFSDataInputStreamMock.getWrappedStream()).thenReturn(avsc2xmlPropertiesStream);
+        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_FIELD_META)))
+                .thenReturn(fieldMetaFSDataInputStreamMock);
+        Mockito.when(fieldMetaFSDataInputStreamMock.getWrappedStream()).thenReturn(fieldMetaStream);
 
         mapDriver = MapDriver.newMapDriver(new XmlParserMapper());
-        mapDriver.getConfiguration().set(Constants.CONFIG_KEY_AVRO_2_XPATH_MAPPING_FILE_PATH,
-                TestData.DUMMY_HDFS_PATH_AVSC2XPATH_PROPERTIES);
+        mapDriver.getConfiguration().set(Constants.CONFIG_KEY_FIELD_META_FILE_PATH, TestData.DUMMY_HDFS_PATH_FIELD_META);
     }
 
     @After
     public void tearDown() throws IOException {
         xmlStream.close();
-        avsc2xmlPropertiesStream.close();
+        fieldMetaStream.close();
     }
 
     @Test

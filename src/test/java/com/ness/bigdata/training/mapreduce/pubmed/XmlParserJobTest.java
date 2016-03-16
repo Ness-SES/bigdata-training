@@ -40,20 +40,15 @@ public class XmlParserJobTest {
     private FSDataInputStream xmlFSDataInputStreamMock;
 
     @Mock
-    private FSDataInputStream avsc2xmlPropertiesFSDataInputStreamMock;
-
-    @Mock
-    private FSDataInputStream avscFSDataInputStreamMock;
+    private FSDataInputStream fieldMetaFSDataInputStreamMock;
 
     private InputStream xmlStream;
-    private InputStream avsc2xmlPropertiesStream;
-    private InputStream avscStream;
+    private InputStream fieldMetaStream;
 
     @Before
     public void setUp() throws IOException {
         xmlStream = new FileInputStream(new File(TestData.XML));
-        avsc2xmlPropertiesStream = new FileInputStream(new File(TestData.AVSC2XPATH_PROPERTIES));
-        avscStream = new FileInputStream(new File(TestData.AVSC));
+        fieldMetaStream = new FileInputStream(new File(TestData.FIELD_META));
 
         PowerMockito.mockStatic(FileSystem.class);
         PowerMockito.when(FileSystem.get(Mockito.any(Configuration.class))).thenReturn(fileSystemMock);
@@ -61,13 +56,9 @@ public class XmlParserJobTest {
         Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_XML))).thenReturn(xmlFSDataInputStreamMock);
         Mockito.when(xmlFSDataInputStreamMock.getWrappedStream()).thenReturn(xmlStream);
 
-        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_AVSC2XPATH_PROPERTIES)))
-                .thenReturn(avsc2xmlPropertiesFSDataInputStreamMock);
-        Mockito.when(avsc2xmlPropertiesFSDataInputStreamMock.getWrappedStream()).thenReturn(avsc2xmlPropertiesStream);
-
-        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_AVSC)))
-                .thenReturn(avscFSDataInputStreamMock);
-        Mockito.when(avscFSDataInputStreamMock.getWrappedStream()).thenReturn(avscStream);
+        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_FIELD_META)))
+                .thenReturn(fieldMetaFSDataInputStreamMock);
+        Mockito.when(fieldMetaFSDataInputStreamMock.getWrappedStream()).thenReturn(fieldMetaStream);
 
         mapReduceDriver = MapReduceDriver.newMapReduceDriver(new XmlParserMapper(), new XmlParserReducer());
         Configuration driverConfiguration = mapReduceDriver.getConfiguration();
@@ -80,16 +71,13 @@ public class XmlParserJobTest {
         driverConfiguration.setStrings("io.serializations", newIOSerializations);
         driverConfiguration.set("avro.serialization.value.writer.schema", TestData.AVRO_SCHEMA.toString());
         driverConfiguration.set("avro.serialization.key.writer.schema", Schema.create(Schema.Type.INT).toString(true));
-        driverConfiguration.set(Constants.CONFIG_KEY_AVRO_2_XPATH_MAPPING_FILE_PATH,
-                TestData.DUMMY_HDFS_PATH_AVSC2XPATH_PROPERTIES);
-        driverConfiguration.set(Constants.CONFIG_KEY_AVRO_SCHEMA_FILE_PATH, TestData.DUMMY_HDFS_PATH_AVSC);
+        driverConfiguration.set(Constants.CONFIG_KEY_FIELD_META_FILE_PATH, TestData.DUMMY_HDFS_PATH_FIELD_META);
     }
 
     @After
     public void tearDown() throws IOException {
         xmlStream.close();
-        avsc2xmlPropertiesStream.close();
-        avscStream.close();
+        fieldMetaStream.close();
     }
 
     @Test

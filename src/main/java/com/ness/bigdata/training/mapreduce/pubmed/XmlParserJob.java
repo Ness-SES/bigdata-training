@@ -35,8 +35,8 @@ public class XmlParserJob extends Configured {
         job.setReducerClass(XmlParserReducer.class);
         job.setOutputFormatClass(AvroKeyValueOutputFormat.class);
         AvroJob.setOutputKeySchema(job, Schema.create(Schema.Type.INT));
-        Schema schema = AvroSchemaLoader.getInstance(conf, Constants.CONFIG_KEY_AVRO_SCHEMA_FILE_PATH).getSchema();
-        AvroJob.setOutputValueSchema(job, schema);
+        FieldMetaLoader fieldMetaLoader = FieldMetaLoader.getInstance(conf, Constants.CONFIG_KEY_FIELD_META_FILE_PATH);
+        AvroJob.setOutputValueSchema(job, fieldMetaLoader.getAvroSchema());
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }

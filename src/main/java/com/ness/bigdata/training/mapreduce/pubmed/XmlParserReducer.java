@@ -3,7 +3,6 @@ package com.ness.bigdata.training.mapreduce.pubmed;
 import java.io.IOException;
 import java.util.Map.Entry;
 
-import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.mapred.AvroKey;
@@ -26,10 +25,11 @@ public class XmlParserReducer extends Reducer<IntWritable, MapWritable, AvroKey<
     }
 
     private GenericRecord toGenericRecord(MapWritable articleInfo, Configuration conf) throws IOException {
-        Schema schema = AvroSchemaLoader.getInstance(conf, Constants.CONFIG_KEY_AVRO_SCHEMA_FILE_PATH).getSchema();
-        GenericRecord genericRecord = new GenericData.Record(schema);
+        FieldMetaLoader fieldMetaLoader = FieldMetaLoader.getInstance(conf, Constants.CONFIG_KEY_FIELD_META_FILE_PATH);
+        GenericRecord genericRecord = new GenericData.Record(fieldMetaLoader.getAvroSchema());
         for (Entry<Writable, Writable> entry : articleInfo.entrySet()) {
-            genericRecord.put(entry.getKey().toString(), entry.getValue());
+            FieldMeta fieldMeta = fieldMetaLoader.getFieldMeta(entry.getKey().toString());
+            genericRecord.put(fieldMeta.getName(), fieldMeta.castFromWritable(entry.getValue()));
         }
         return genericRecord;
     }

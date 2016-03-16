@@ -7,11 +7,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.hadoop.io.Writable;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -44,10 +44,11 @@ public class XmlParser {
 		}
 	}
 
-	public String evaluate(String xPath) {
+	public Writable evaluate(FieldMeta fieldMeta) {
 	    try {
-	        XPathExpression xPathExpression = X_PATH.compile(xPath);
-            return (String) xPathExpression.evaluate(doc, XPathConstants.STRING);
+	        XPathExpression xPathExpression = X_PATH.compile(fieldMeta.getXPath());
+            Object value = xPathExpression.evaluate(doc, fieldMeta.getXPathType());
+            return fieldMeta.castToWritable(value);
         } catch (XPathExpressionException e) {
             throw new RuntimeException(e);
         }

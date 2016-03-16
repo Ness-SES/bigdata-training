@@ -10,6 +10,9 @@ import java.io.InputStream;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,15 +34,21 @@ public class XmlParserTest {
     @Test
     public void testParse() throws XPathExpressionException, SAXException, IOException {
         XmlParser parser = new XmlParser(stream);
-        String title = parser.evaluate("string(/article/front/article-meta/title-group/article-title)");
+        
+        FieldMeta fieldMeta = new FieldMeta("articleTitle", "string(/article/front/article-meta/title-group/article-title)", FieldMeta.Type.STRING); 
+        String title = ((Text)parser.evaluate(fieldMeta)).toString();
         assertThat(title, equalTo(TestData.ARTICLE_TITLE));
-        String issnPPub = parser.evaluate("/article/front/journal-meta/issn[@pub-type='ppub']/text()");
+        
+        fieldMeta = new FieldMeta("articleIssnPPub", "/article/front/journal-meta/issn[@pub-type='ppub']/text()", FieldMeta.Type.STRING); 
+        String issnPPub = ((Text)parser.evaluate(fieldMeta)).toString();
         assertThat(issnPPub, equalTo(TestData.ARTICLE_ISSN_PUB));
-        String publisherId = parser
-                .evaluate("/article/front/article-meta/article-id[@pub-id-type='publisher-id']/text()");
+        
+        fieldMeta = new FieldMeta("articlePublisherId", "/article/front/article-meta/article-id[@pub-id-type='publisher-id']/text()", FieldMeta.Type.INT); 
+        int publisherId = ((IntWritable)parser.evaluate(fieldMeta)).get();
         assertThat(publisherId, equalTo(TestData.ARTICLE_PUBLISHER_ID));
-        String acceptedDate = parser.evaluate(
-                "concat(/article/front/article-meta/history/date[@ date-type='accepted']/year/text(),'-',/article/front/article-meta/history/date[@ date-type='accepted']/month/text(),'-',/article/front/article-meta/history/date[@ date-type='accepted']/day/text())");
+        
+        fieldMeta = new FieldMeta("articleDateAccepted", "concat(/article/front/article-meta/history/date[@ date-type='accepted']/year/text(),'-',substring(concat('0',/article/front/article-meta/history/date[@ date-type='accepted']/month/text()),string-length(/article/front/article-meta/history/date[@ date-type='accepted']/month/text())),'-',substring(concat('0',/article/front/article-meta/history/date[@ date-type='accepted']/day/text()),string-length(/article/front/article-meta/history/date[@ date-type='accepted']/day/text())))", FieldMeta.Type.DATE_YYYY_MM_DD);
+        long acceptedDate = ((LongWritable)parser.evaluate(fieldMeta)).get();
         assertThat(acceptedDate, equalTo(TestData.ARTICLE_DATE_ACCEPTED));
     }
 }

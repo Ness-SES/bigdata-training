@@ -19,23 +19,20 @@ public class XmlParserMapper extends Mapper<Text, Text, IntWritable, MapWritable
             throws IOException, InterruptedException {
         String xmlFilePath = value.toString();
         MapWritable output = extractArticleInfo(xmlFilePath, context.getConfiguration());
-        output.put(new Text(Constants.AVRO_FIELD_FILE_PATH), new Text(xmlFilePath));
+        output.put(new Text(Constants.FIELD_NAME_FILE_PATH), new Text(xmlFilePath));
         context.write(ONE, output);
     }
 
     private MapWritable extractArticleInfo(String xmlFilePath, Configuration configuration) throws IOException {
-        PropertiesLoader propertiesLoader = PropertiesLoader.getInstance(configuration,
-                Constants.CONFIG_KEY_AVRO_2_XPATH_MAPPING_FILE_PATH);
+        FieldMetaLoader fieldMetaLoader = FieldMetaLoader.getInstance(configuration, Constants.CONFIG_KEY_FIELD_META_FILE_PATH);
         XmlParser xmlParser = parseXml(FileSystem.get(configuration), new Path(xmlFilePath));
-        return extractArticleInfo(propertiesLoader, xmlParser);
+        return extractArticleInfo(fieldMetaLoader, xmlParser);
     }
 
-    private MapWritable extractArticleInfo(PropertiesLoader propertiesLoader, XmlParser xmlParser) {
+    private MapWritable extractArticleInfo(FieldMetaLoader fieldMetaLoader, XmlParser xmlParser) {
         MapWritable output = new MapWritable();
-        for (String fieldName : propertiesLoader.getPropertyNames()) {
-            String xPath = propertiesLoader.getProperty(fieldName);
-            String fieldValue = xmlParser.evaluate(xPath);
-            output.put(new Text(fieldName), new Text(fieldValue));
+        for (FieldMeta oneFieldMeta : fieldMetaLoader.getFieldMeta()) {
+            output.put(new Text(oneFieldMeta.getName()), xmlParser.evaluate(oneFieldMeta));
         }
         return output;
     }
