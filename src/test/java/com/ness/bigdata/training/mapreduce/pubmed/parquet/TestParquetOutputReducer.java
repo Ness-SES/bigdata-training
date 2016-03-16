@@ -59,7 +59,7 @@ public class TestParquetOutputReducer {
 		values.add(new AVROToParquetArrayWritable(expectedData1.get(), parquetSchema.toString()));
 		values.add(new AVROToParquetArrayWritable(expectedData2.get(), parquetSchema.toString()));
 
-		reduceDriver.withInput(NullWritable.get(), values);
+		reduceDriver.withInput(null, values);
 
 		reduceDriver.withOutput(NullWritable.get(), expectedData1);
 		reduceDriver.withOutput(NullWritable.get(), expectedData2);

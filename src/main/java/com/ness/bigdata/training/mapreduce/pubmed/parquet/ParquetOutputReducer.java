@@ -13,6 +13,12 @@ public class ParquetOutputReducer
 		extends Reducer<NullWritable, AVROToParquetArrayWritable, NullWritable, AVROToParquetArrayWritable> {
 
 	@Override
+	protected void setup(Context context) throws IOException, InterruptedException {
+		super.setup(context);
+		DataWritableWriteSupport.getSchema(context.getConfiguration());
+	}
+
+	@Override
 	protected void reduce(NullWritable key, Iterable<AVROToParquetArrayWritable> values, Context context)
 			throws IOException, InterruptedException {
 		for (AVROToParquetArrayWritable resultedData : values) {
