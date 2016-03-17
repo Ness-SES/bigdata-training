@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -25,9 +26,9 @@ public class TestParquetOutputReducer {
 	private static final String ARTICLE_ISSN_P_PUB = "articleIssnPPub";
 	private static final String ARTICLE_DATE_ACCEPTED = "articleDateAccepted";
 
-	private ReduceDriver<NullWritable, AVROToParquetArrayWritable, NullWritable, AVROToParquetArrayWritable> reduceDriver;
-	private AVROToParquetArrayWritable expectedData1;
-	private AVROToParquetArrayWritable expectedData2;
+	private ReduceDriver<NullWritable, AVROToParquetArrayWritable, Void, ArrayWritable> reduceDriver;
+	private ArrayWritable expectedData1;
+	private ArrayWritable expectedData2;
 	private MessageType parquetSchema;
 
 	@Before
@@ -42,7 +43,7 @@ public class TestParquetOutputReducer {
 		writableData1[2] = new LongWritable(Long.valueOf(1));
 		writableData1[3] = new Text("AIPP" + 1);
 		writableData1[4] = new LongWritable(Long.valueOf((System.currentTimeMillis() - 1) / 1000L));
-		expectedData1 = new AVROToParquetArrayWritable(writableData1, parquetSchema.toString());
+		expectedData1 = new ArrayWritable(Writable.class, writableData1);
 
 		Writable[] writableData2 = new Writable[5];
 		writableData2[0] = new Text("FP" + 2);
@@ -50,7 +51,7 @@ public class TestParquetOutputReducer {
 		writableData2[2] = new LongWritable(Long.valueOf(2));
 		writableData2[3] = new Text("AIPP" + 2);
 		writableData2[4] = new LongWritable(Long.valueOf((System.currentTimeMillis() - 2) / 1000L));
-		expectedData2 = new AVROToParquetArrayWritable(writableData2, parquetSchema.toString());
+		expectedData2 = new ArrayWritable(Writable.class, writableData2);
 	}
 
 	@Test
@@ -59,10 +60,10 @@ public class TestParquetOutputReducer {
 		values.add(new AVROToParquetArrayWritable(expectedData1.get(), parquetSchema.toString()));
 		values.add(new AVROToParquetArrayWritable(expectedData2.get(), parquetSchema.toString()));
 
-		reduceDriver.withInput(null, values);
+		reduceDriver.withInput(NullWritable.get(), values);
 
-		reduceDriver.withOutput(NullWritable.get(), expectedData1);
-		reduceDriver.withOutput(NullWritable.get(), expectedData2);
+		reduceDriver.withOutput(null, expectedData1);
+		reduceDriver.withOutput(null, expectedData2);
 
 		reduceDriver.runTest();
 	}

@@ -31,7 +31,7 @@ public class AVROToParquetEngine extends Configured implements Tool {
 		config.set(ParquetOutputFormat.BLOCK_SIZE, Integer.toString(128 * 1024 * 1024));
 
 		/*
-		 * instantiate dummy schema to avoid NullPointerException at mapper
+		 * instantiate dummy schema to avoid NullPointerException at reducer
 		 * initialization
 		 */
 		MessageType mt = new MessageType("pubmed");

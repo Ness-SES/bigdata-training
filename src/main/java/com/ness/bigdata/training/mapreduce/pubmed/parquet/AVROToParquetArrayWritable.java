@@ -5,25 +5,26 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.reflect.Array;
 
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableFactories;
 
 public class AVROToParquetArrayWritable implements Writable {
 
 	private Writable[] values;
-	private String strSchema;
+	private String schema;
 
 	public AVROToParquetArrayWritable() {
 	}
 
-	public AVROToParquetArrayWritable(Writable[] values, String strSchema) {
+	public AVROToParquetArrayWritable(Writable[] values, String schema) {
 		this.values = values;
-		this.strSchema = strSchema;
+		this.schema = schema;
 	}
 
 	@Override
 	public void write(DataOutput out) throws IOException {
-		out.writeUTF(strSchema);
+		out.writeUTF(schema);
 		out.writeInt(values.length);
 		for (int i = 0; i < values.length; i++) {
 			out.writeUTF(values[i].getClass().getName());
@@ -34,7 +35,7 @@ public class AVROToParquetArrayWritable implements Writable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void readFields(DataInput in) throws IOException {
-		strSchema = in.readUTF();
+		schema = in.readUTF();
 		values = new Writable[in.readInt()];
 		for (int i = 0; i < values.length; i++) {
 			String className = in.readUTF();
@@ -48,6 +49,10 @@ public class AVROToParquetArrayWritable implements Writable {
 		}
 	}
 
+	public ArrayWritable getArrayWritable() {
+		return new ArrayWritable(Writable.class, values);
+	}
+
 	public Writable[] get() {
 		return values;
 	}
@@ -56,12 +61,12 @@ public class AVROToParquetArrayWritable implements Writable {
 		this.values = values;
 	}
 
-	public String getStrSchema() {
-		return strSchema;
+	public String getSchema() {
+		return schema;
 	}
 
-	public void setStrSchema(String strSchema) {
-		this.strSchema = strSchema;
+	public void setSchema(String strSchema) {
+		this.schema = strSchema;
 	}
 
 	@SuppressWarnings("unchecked")

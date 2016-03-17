@@ -3,6 +3,7 @@ package com.ness.bigdata.training.mapreduce.pubmed.parquet;
 import java.io.IOException;
 
 import org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriteSupport;
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Reducer;
 
@@ -10,7 +11,7 @@ import parquet.schema.MessageType;
 import parquet.schema.MessageTypeParser;
 
 public class ParquetOutputReducer
-		extends Reducer<NullWritable, AVROToParquetArrayWritable, NullWritable, AVROToParquetArrayWritable> {
+		extends Reducer<NullWritable, AVROToParquetArrayWritable, Void, ArrayWritable> {
 
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
@@ -26,13 +27,13 @@ public class ParquetOutputReducer
 				MessageType parquetSchema = initializeSchema(resultedData);
 				if (null != parquetSchema) {
 					DataWritableWriteSupport.setSchema(parquetSchema, context.getConfiguration());
-					context.write(null, resultedData);
+					context.write(null, resultedData.getArrayWritable());
 				}
 			}
 		}
 	}
 
 	private MessageType initializeSchema(AVROToParquetArrayWritable resultedData) {
-		return MessageTypeParser.parseMessageType(resultedData.getStrSchema());
+		return MessageTypeParser.parseMessageType(resultedData.getSchema());
 	}
 }

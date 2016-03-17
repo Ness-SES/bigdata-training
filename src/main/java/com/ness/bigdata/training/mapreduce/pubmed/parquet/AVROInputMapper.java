@@ -80,7 +80,7 @@ public class AVROInputMapper
 		}
 		if (true == dataInstantiated && null != resultedData) {
 			resultedData.set(resultedDataArray);
-			resultedData.setStrSchema(parquetSchema.toString());
+			resultedData.setSchema(parquetSchema.toString());
 		} else if (null == resultedData) {
 			dataInstantiated = false;
 		}
