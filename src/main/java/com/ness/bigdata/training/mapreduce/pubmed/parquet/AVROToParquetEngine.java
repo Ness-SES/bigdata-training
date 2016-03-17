@@ -15,9 +15,6 @@ import org.apache.hadoop.util.ToolRunner;
 import parquet.hadoop.ParquetOutputFormat;
 import parquet.hadoop.metadata.CompressionCodecName;
 import parquet.schema.MessageType;
-import parquet.schema.PrimitiveType;
-import parquet.schema.PrimitiveType.PrimitiveTypeName;
-import parquet.schema.Type.Repetition;
 
 public class AVROToParquetEngine extends Configured implements Tool {
 
@@ -33,6 +30,10 @@ public class AVROToParquetEngine extends Configured implements Tool {
 		config.set(ParquetOutputFormat.COMPRESSION, "SNAPPY");
 		config.set(ParquetOutputFormat.BLOCK_SIZE, Integer.toString(128 * 1024 * 1024));
 
+		/*
+		 * instantiate dummy schema to avoid NullPointerException at mapper
+		 * initialization
+		 */
 		MessageType mt = new MessageType("pubmed");
 
 		DataWritableWriteSupport.setSchema(mt, config);

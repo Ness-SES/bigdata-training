@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
-import org.apache.avro.Schema.Type;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.hadoop.conf.Configuration;
@@ -15,10 +14,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Mapper;
 
+import parquet.avro.AvroSchemaConverter;
 import parquet.schema.MessageType;
-import parquet.schema.PrimitiveType;
-import parquet.schema.PrimitiveType.PrimitiveTypeName;
-import parquet.schema.Type.Repetition;
 
 public class AVROInputMapper
 		extends Mapper<AvroKey<GenericRecord>, NullWritable, NullWritable, AVROToParquetArrayWritable> {
@@ -94,45 +91,8 @@ public class AVROInputMapper
 		if (null == schema || null == schema.getFields() || schema.getFields().isEmpty()) {
 			return;
 		}
-		parquet.schema.Type[] types = new parquet.schema.Type[schema.getFields().size()];
-		for (Field field : schema.getFields()) {
-			parquet.schema.Type type = getType(field);
-			if (null != type) {
-				types[field.pos()] = type;
-			}
-		}
 		resultedData = new AVROToParquetArrayWritable();
 		resultedDataArray = new Writable[schema.getFields().size()];
-		parquetSchema = new MessageType(schema.getFullName(), types);
-	}
-
-	private PrimitiveType getType(Field field) {
-		PrimitiveType type = null;
-
-		if (null != field && null != field.schema()) {
-			Schema fieldSchema = field.schema();
-			type = new PrimitiveType(Repetition.REQUIRED, getParquetRecordTypeFromAVROType(fieldSchema.getType()),
-					field.name());
-		}
-
-		return type;
-	}
-
-	private PrimitiveTypeName getParquetRecordTypeFromAVROType(Type type) {
-		PrimitiveTypeName name = PrimitiveTypeName.BINARY;
-		switch (type) {
-		case STRING:
-			name = PrimitiveTypeName.BINARY;
-			break;
-		case LONG:
-		case INT:
-			name = PrimitiveTypeName.INT64;
-			break;
-
-		default:
-			name = PrimitiveTypeName.BINARY;
-			break;
-		}
-		return name;
+		parquetSchema = new AvroSchemaConverter().convert(schema);
 	}
 }

@@ -26,7 +26,7 @@ public class ParquetOutputReducer
 				MessageType parquetSchema = initializeSchema(resultedData);
 				if (null != parquetSchema) {
 					DataWritableWriteSupport.setSchema(parquetSchema, context.getConfiguration());
-					context.write(NullWritable.get(), resultedData);
+					context.write(null, resultedData);
 				}
 			}
 		}
