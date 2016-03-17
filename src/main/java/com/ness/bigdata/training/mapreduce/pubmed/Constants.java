@@ -1,9 +1,7 @@
 package com.ness.bigdata.training.mapreduce.pubmed;
 
 public interface Constants {
-    String CONFIG_KEY_AVRO_2_XPATH_MAPPING_FILE_PATH = "avro.xml.mapping.file";
-    String CONFIG_KEY_AVRO_SCHEMA_FILE_PATH = "avro.schema.file";
+    String CONFIG_KEY_FIELD_META_FILE_PATH = "field.meta.file";
     
-    String AVRO_FIELD_FILE_PATH = "filePath";
-
+    String FIELD_NAME_FILE_PATH = "filePath";
 }

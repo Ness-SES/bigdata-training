@@ -37,20 +37,20 @@ public class XmlParserReducerTest {
     private FileSystem fileSystemMock;
 
     @Mock
-    private FSDataInputStream avscFSDataInputStreamMock;
+    private FSDataInputStream fieldMetaFSDataInputStreamMock;
 
-    private InputStream avscStream;
+    private InputStream fieldMetaStream;
 
     @Before
-    public void setup() throws IOException {
-        avscStream = new FileInputStream(new File(TestData.AVSC));
+    public void setUp() throws IOException {
+        fieldMetaStream = new FileInputStream(new File(TestData.FIELD_META));
 
         PowerMockito.mockStatic(FileSystem.class);
         PowerMockito.when(FileSystem.get(Mockito.any(Configuration.class))).thenReturn(fileSystemMock);
 
-        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_AVSC)))
-                .thenReturn(avscFSDataInputStreamMock);
-        Mockito.when(avscFSDataInputStreamMock.getWrappedStream()).thenReturn(avscStream);
+        Mockito.when(fileSystemMock.open(new Path(TestData.DUMMY_HDFS_PATH_FIELD_META)))
+                .thenReturn(fieldMetaFSDataInputStreamMock);
+        Mockito.when(fieldMetaFSDataInputStreamMock.getWrappedStream()).thenReturn(fieldMetaStream);
 
         reduceDriver = ReduceDriver.newReduceDriver(new XmlParserReducer());
         Configuration driverConfiguration = reduceDriver.getConfiguration();
@@ -63,12 +63,12 @@ public class XmlParserReducerTest {
         driverConfiguration.setStrings("io.serializations", newIOSerializations);
         driverConfiguration.set("avro.serialization.value.writer.schema", TestData.AVRO_SCHEMA.toString(true));
         driverConfiguration.set("avro.serialization.key.writer.schema", Schema.create(Schema.Type.INT).toString(true));
-        driverConfiguration.set(Constants.CONFIG_KEY_AVRO_SCHEMA_FILE_PATH, TestData.DUMMY_HDFS_PATH_AVSC);
+        driverConfiguration.set(Constants.CONFIG_KEY_FIELD_META_FILE_PATH, TestData.DUMMY_HDFS_PATH_FIELD_META);
     }
-    
+
     @After
     public void tearDown() throws IOException {
-        avscStream.close();
+        fieldMetaStream.close();
     }
 
     @Test
