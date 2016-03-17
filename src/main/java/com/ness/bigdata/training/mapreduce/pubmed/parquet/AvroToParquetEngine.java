@@ -44,6 +44,7 @@ public class AvroToParquetEngine extends Configured implements Tool {
 		 * initialization
 		 */
 		MessageType mt = new AvroSchemaConverter().convert(SCHEMA);
+		// MessageType mt = new MessageType("dummy");
 
 		DataWritableWriteSupport.setSchema(mt, config);
 

@@ -3,8 +3,6 @@ package com.ness.bigdata.training.mapreduce.pubmed.parquet;
 import java.io.IOException;
 
 import org.apache.avro.Schema;
-import org.apache.avro.Schema.Field;
-import org.apache.avro.Schema.Type;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.hadoop.io.AvroSerialization;
@@ -13,7 +11,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.ql.io.parquet.writable.BinaryWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mrunit.mapreduce.MapDriver;
 import org.junit.Before;
@@ -22,9 +19,6 @@ import org.junit.Test;
 import parquet.avro.AvroSchemaConverter;
 import parquet.io.api.Binary;
 import parquet.schema.MessageType;
-import parquet.schema.PrimitiveType;
-import parquet.schema.PrimitiveType.PrimitiveTypeName;
-import parquet.schema.Type.Repetition;
 
 public class TestAvroInputMapper {
 

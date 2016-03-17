@@ -27,10 +27,6 @@ public class AvroInputMapper
 	private static Writable[] resultedDataArray;
 
 	@Override
-	protected void setup(Context context) throws IOException, InterruptedException {
-	}
-
-	@Override
 	protected void map(AvroKey<GenericRecord> key, NullWritable value, Context context)
 			throws IOException, InterruptedException {
 		initializeSchemas(key.datum(), context.getConfiguration());
