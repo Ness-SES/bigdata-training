@@ -11,7 +11,7 @@ import parquet.schema.MessageType;
 import parquet.schema.MessageTypeParser;
 
 public class ParquetOutputReducer
-		extends Reducer<NullWritable, AVROToParquetArrayWritable, Void, ArrayWritable> {
+		extends Reducer<NullWritable, AvroToParquetArrayWritable, Void, ArrayWritable> {
 
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
@@ -20,9 +20,9 @@ public class ParquetOutputReducer
 	}
 
 	@Override
-	protected void reduce(NullWritable key, Iterable<AVROToParquetArrayWritable> values, Context context)
+	protected void reduce(NullWritable key, Iterable<AvroToParquetArrayWritable> values, Context context)
 			throws IOException, InterruptedException {
-		for (AVROToParquetArrayWritable resultedData : values) {
+		for (AvroToParquetArrayWritable resultedData : values) {
 			if (null != resultedData && null != resultedData.get() && 0 < resultedData.get().length) {
 				MessageType parquetSchema = initializeSchema(resultedData);
 				if (null != parquetSchema) {
@@ -33,7 +33,7 @@ public class ParquetOutputReducer
 		}
 	}
 
-	private MessageType initializeSchema(AVROToParquetArrayWritable resultedData) {
+	private MessageType initializeSchema(AvroToParquetArrayWritable resultedData) {
 		return MessageTypeParser.parseMessageType(resultedData.getSchema());
 	}
 }

@@ -23,7 +23,7 @@ import parquet.schema.PrimitiveType;
 import parquet.schema.PrimitiveType.PrimitiveTypeName;
 import parquet.schema.Type.Repetition;
 
-public class TestAVROInputMapper {
+public class TestAvroInputMapper {
 
 	private static final Schema SCHEMA = new Schema.Parser().parse("{" + "\"type\": \"record\","
 			+ "\"name\": \"ArticleInfo\"," + "\"fields\": [" + "	{\"name\": \"filePath\", \"type\": \"string\"},"
@@ -37,15 +37,15 @@ public class TestAVROInputMapper {
 	private static final String ARTICLE_ISSN_P_PUB = "articleIssnPPub";
 	private static final String ARTICLE_DATE_ACCEPTED = "articleDateAccepted";
 
-	private MapDriver<AvroKey<GenericRecord>, NullWritable, NullWritable, AVROToParquetArrayWritable> mapDriver;
+	private MapDriver<AvroKey<GenericRecord>, NullWritable, NullWritable, AvroToParquetArrayWritable> mapDriver;
 	private GenericRecord data1;
 	private GenericRecord data2;
-	private AVROToParquetArrayWritable expectedData1;
-	private AVROToParquetArrayWritable expectedData2;
+	private AvroToParquetArrayWritable expectedData1;
+	private AvroToParquetArrayWritable expectedData2;
 
 	@Before
 	public void setUp() throws IOException {
-		mapDriver = MapDriver.newMapDriver(new AVROInputMapper());
+		mapDriver = MapDriver.newMapDriver(new AvroInputMapper());
 
 		Configuration driverConfiguration = mapDriver.getConfiguration();
 		// driverConfiguration.set(Constants.SCHEMA_KEY, SCHEMA.toString());
@@ -81,7 +81,7 @@ public class TestAVROInputMapper {
 		writableData1[2] = new LongWritable((Long) data1.get(ARTICLE_PUBLISHER_ID));
 		writableData1[3] = new Text((String) data1.get(ARTICLE_ISSN_P_PUB));
 		writableData1[4] = new LongWritable((Long) data1.get(ARTICLE_DATE_ACCEPTED));
-		expectedData1 = new AVROToParquetArrayWritable(writableData1, parquetSchema.toString());
+		expectedData1 = new AvroToParquetArrayWritable(writableData1, parquetSchema.toString());
 
 		Writable[] writableData2 = new Writable[5];
 		writableData2[0] = new Text((String) data2.get(FILE_PATH));
@@ -89,7 +89,7 @@ public class TestAVROInputMapper {
 		writableData2[2] = new LongWritable((Long) data2.get(ARTICLE_PUBLISHER_ID));
 		writableData2[3] = new Text((String) data2.get(ARTICLE_ISSN_P_PUB));
 		writableData2[4] = new LongWritable((Long) data2.get(ARTICLE_DATE_ACCEPTED));
-		expectedData2 = new AVROToParquetArrayWritable(writableData2, parquetSchema.toString());
+		expectedData2 = new AvroToParquetArrayWritable(writableData2, parquetSchema.toString());
 	}
 
 	@Test

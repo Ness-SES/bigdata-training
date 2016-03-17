@@ -26,7 +26,7 @@ public class TestParquetOutputReducer {
 	private static final String ARTICLE_ISSN_P_PUB = "articleIssnPPub";
 	private static final String ARTICLE_DATE_ACCEPTED = "articleDateAccepted";
 
-	private ReduceDriver<NullWritable, AVROToParquetArrayWritable, Void, ArrayWritable> reduceDriver;
+	private ReduceDriver<NullWritable, AvroToParquetArrayWritable, Void, ArrayWritable> reduceDriver;
 	private ArrayWritable expectedData1;
 	private ArrayWritable expectedData2;
 	private MessageType parquetSchema;
@@ -56,9 +56,9 @@ public class TestParquetOutputReducer {
 
 	@Test
 	public void testReducer() throws IOException {
-		List<AVROToParquetArrayWritable> values = new ArrayList<AVROToParquetArrayWritable>();
-		values.add(new AVROToParquetArrayWritable(expectedData1.get(), parquetSchema.toString()));
-		values.add(new AVROToParquetArrayWritable(expectedData2.get(), parquetSchema.toString()));
+		List<AvroToParquetArrayWritable> values = new ArrayList<AvroToParquetArrayWritable>();
+		values.add(new AvroToParquetArrayWritable(expectedData1.get(), parquetSchema.toString()));
+		values.add(new AvroToParquetArrayWritable(expectedData2.get(), parquetSchema.toString()));
 
 		reduceDriver.withInput(NullWritable.get(), values);
 

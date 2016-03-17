@@ -16,7 +16,7 @@ import parquet.hadoop.ParquetOutputFormat;
 import parquet.hadoop.metadata.CompressionCodecName;
 import parquet.schema.MessageType;
 
-public class AVROToParquetEngine extends Configured implements Tool {
+public class AvroToParquetEngine extends Configured implements Tool {
 
 	@Override
 	public int run(String[] args) throws Exception {
@@ -38,19 +38,19 @@ public class AVROToParquetEngine extends Configured implements Tool {
 
 		DataWritableWriteSupport.setSchema(mt, config);
 
-		Job job = Job.getInstance(config, AVROToParquetEngine.class.getSimpleName());
+		Job job = Job.getInstance(config, AvroToParquetEngine.class.getSimpleName());
 
-		job.setJarByClass(AVROToParquetEngine.class);
+		job.setJarByClass(AvroToParquetEngine.class);
 		job.setInputFormatClass(AvroKeyInputFormat.class);
 		job.setOutputFormatClass(ParquetOutputFormat.class);
 
-		job.setMapperClass(AVROInputMapper.class);
+		job.setMapperClass(AvroInputMapper.class);
 		job.setMapOutputKeyClass(NullWritable.class);
-		job.setMapOutputValueClass(AVROToParquetArrayWritable.class);
+		job.setMapOutputValueClass(AvroToParquetArrayWritable.class);
 
 		job.setReducerClass(ParquetOutputReducer.class);
 		job.setOutputKeyClass(NullWritable.class);
-		job.setOutputValueClass(AVROToParquetArrayWritable.class);
+		job.setOutputValueClass(AvroToParquetArrayWritable.class);
 
 		if (3 == args.length) {
 			Integer reducers = Integer.valueOf(args[2]);
@@ -72,7 +72,7 @@ public class AVROToParquetEngine extends Configured implements Tool {
 		if (2 > args.length) {
 			System.exit(0);
 		}
-		int res = ToolRunner.run(new AVROToParquetEngine(), args);
+		int res = ToolRunner.run(new AvroToParquetEngine(), args);
 		System.exit(res);
 	}
 }

@@ -17,12 +17,12 @@ import org.apache.hadoop.mapreduce.Mapper;
 import parquet.avro.AvroSchemaConverter;
 import parquet.schema.MessageType;
 
-public class AVROInputMapper
-		extends Mapper<AvroKey<GenericRecord>, NullWritable, NullWritable, AVROToParquetArrayWritable> {
+public class AvroInputMapper
+		extends Mapper<AvroKey<GenericRecord>, NullWritable, NullWritable, AvroToParquetArrayWritable> {
 
 	private static Schema schema;
 	private static MessageType parquetSchema;
-	private static AVROToParquetArrayWritable resultedData;
+	private static AvroToParquetArrayWritable resultedData;
 	private static Writable[] resultedDataArray;
 
 	@Override
@@ -91,7 +91,7 @@ public class AVROInputMapper
 		if (null == schema || null == schema.getFields() || schema.getFields().isEmpty()) {
 			return;
 		}
-		resultedData = new AVROToParquetArrayWritable();
+		resultedData = new AvroToParquetArrayWritable();
 		resultedDataArray = new Writable[schema.getFields().size()];
 		parquetSchema = new AvroSchemaConverter().convert(schema);
 	}

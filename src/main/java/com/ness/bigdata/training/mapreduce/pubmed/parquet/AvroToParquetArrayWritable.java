@@ -9,15 +9,15 @@ import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableFactories;
 
-public class AVROToParquetArrayWritable implements Writable {
+public class AvroToParquetArrayWritable implements Writable {
 
 	private Writable[] values;
 	private String schema;
 
-	public AVROToParquetArrayWritable() {
+	public AvroToParquetArrayWritable() {
 	}
 
-	public AVROToParquetArrayWritable(Writable[] values, String schema) {
+	public AvroToParquetArrayWritable(Writable[] values, String schema) {
 		this.values = values;
 		this.schema = schema;
 	}
@@ -105,7 +105,7 @@ public class AVROToParquetArrayWritable implements Writable {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		AVROToParquetArrayWritable other = (AVROToParquetArrayWritable) obj;
+		AvroToParquetArrayWritable other = (AvroToParquetArrayWritable) obj;
 		Writable[] otherValues = other.get();
 		if ((null == this.values && null != otherValues) || (null != this.values && null == otherValues)) {
 			return false;
