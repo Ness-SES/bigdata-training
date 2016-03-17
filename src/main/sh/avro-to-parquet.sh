@@ -8,4 +8,4 @@ INPUT_PATH=/user/ubuntu/adyb/pubmedTest
 OUTPUT_PATH=/user/ubuntu/adyb/pubmedRes
 
 hadoop fs -rm -r $OUTPUT_PATH
-hadoop jar map-reduce-1.0-SNAPSHOT.jar com.ness.bigdata.training.mapreduce.pubmed.parquet.AVROToParquetEngine $INPUT_PATH $OUTPUT_PATH $1 
+hadoop jar map-reduce-1.0-SNAPSHOT.jar com.ness.bigdata.training.mapreduce.pubmed.parquet.AvroToParquetEngine $INPUT_PATH $OUTPUT_PATH $1 

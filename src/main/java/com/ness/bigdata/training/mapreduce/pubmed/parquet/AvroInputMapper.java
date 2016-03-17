@@ -7,14 +7,15 @@ import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hive.ql.io.parquet.writable.BinaryWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import parquet.avro.AvroSchemaConverter;
+import parquet.io.api.Binary;
 import parquet.schema.MessageType;
 
 public class AvroInputMapper
@@ -58,7 +59,8 @@ public class AvroInputMapper
 			case STRING:
 				String strValue = (String) data.get(field.name());
 				if (null != strValue) {
-					resultedDataArray[field.pos()] = new Text((String) data.get(field.name()));
+					resultedDataArray[field.pos()] = new BinaryWritable(
+							Binary.fromString((String) data.get(field.name())));
 				}
 				break;
 			case LONG:

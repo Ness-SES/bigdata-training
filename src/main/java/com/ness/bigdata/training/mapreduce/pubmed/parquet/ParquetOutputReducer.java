@@ -10,8 +10,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import parquet.schema.MessageType;
 import parquet.schema.MessageTypeParser;
 
-public class ParquetOutputReducer
-		extends Reducer<NullWritable, AvroToParquetArrayWritable, Void, ArrayWritable> {
+public class ParquetOutputReducer extends Reducer<NullWritable, AvroToParquetArrayWritable, Void, ArrayWritable> {
 
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
@@ -26,7 +25,8 @@ public class ParquetOutputReducer
 			if (null != resultedData && null != resultedData.get() && 0 < resultedData.get().length) {
 				MessageType parquetSchema = initializeSchema(resultedData);
 				if (null != parquetSchema) {
-					DataWritableWriteSupport.setSchema(parquetSchema, context.getConfiguration());
+					// DataWritableWriteSupport.setSchema(parquetSchema,
+					// context.getConfiguration());
 					context.write(null, resultedData.getArrayWritable());
 				}
 			}

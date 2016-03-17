@@ -5,9 +5,13 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.reflect.Array;
 
+import org.apache.hadoop.hive.ql.io.parquet.writable.BinaryWritable;
 import org.apache.hadoop.io.ArrayWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableFactories;
+
+import parquet.io.api.Binary;
 
 public class AvroToParquetArrayWritable implements Writable {
 
@@ -28,7 +32,12 @@ public class AvroToParquetArrayWritable implements Writable {
 		out.writeInt(values.length);
 		for (int i = 0; i < values.length; i++) {
 			out.writeUTF(values[i].getClass().getName());
-			values[i].write(out);
+			if (values[i] instanceof BinaryWritable) {
+				Text val = new Text(((BinaryWritable) values[i]).getString());
+				val.write(out);
+			} else {
+				values[i].write(out);
+			}
 		}
 	}
 
@@ -41,8 +50,16 @@ public class AvroToParquetArrayWritable implements Writable {
 			String className = in.readUTF();
 			try {
 				Class<? extends Writable> clazz = (Class<? extends Writable>) Class.forName(className);
-				Writable value = WritableFactories.newInstance(clazz);
+				Writable value = null;
+				if (clazz.equals(BinaryWritable.class)) {
+					value = WritableFactories.newInstance(Text.class);
+				} else {
+					value = WritableFactories.newInstance(clazz);
+				}
 				value.readFields(in);
+				if (clazz.equals(BinaryWritable.class) && null != value) {
+					value = new BinaryWritable(Binary.fromString(value.toString()));
+				}
 				values[i] = value;
 			} catch (ClassNotFoundException e) {
 			}
