@@ -1,6 +1,7 @@
 package com.ness.bigdata.training.mapreduce.pubmed.parquet;
 
 import org.apache.avro.Schema;
+import org.apache.avro.SchemaBuilder;
 import org.apache.avro.mapreduce.AvroKeyInputFormat;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -13,6 +14,8 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import com.ness.bigdata.training.mapreduce.pubmed.Constants;
+
 import parquet.avro.AvroSchemaConverter;
 import parquet.hadoop.ParquetOutputFormat;
 import parquet.hadoop.metadata.CompressionCodecName;
@@ -20,12 +23,10 @@ import parquet.schema.MessageType;
 
 public class AvroToParquetEngine extends Configured implements Tool {
 
-	private static final Schema SCHEMA = new Schema.Parser().parse("{" + "\"type\": \"record\","
-			+ "\"name\": \"ArticleInfo\"," + "\"fields\": [" + "	{\"name\": \"filePath\", \"type\": \"string\"},"
-			+ "	{\"name\": \"articleTitle\", \"type\": \"string\"},"
-			+ "	{\"name\": \"articlePublisherId\", \"type\": \"long\"},"
-			+ "	{\"name\": \"articleIssnPPub\", \"type\": \"string\"},"
-			+ "	{\"name\": \"articleDateAccepted\", \"type\": \"long\"}" + "]" + "}");
+	private static final Schema SCHEMA = SchemaBuilder.record("ArticleInfo").fields()
+			.name(Constants.FIELD_NAME_FILE_PATH).type().stringType().noDefault().name("articleTitle").type()
+			.stringType().noDefault().name("articlePublisherId").type().intType().noDefault().name("articleIssnPPub")
+			.type().stringType().noDefault().name("articleDateAccepted").type().longType().noDefault().endRecord();
 
 	@Override
 	public int run(String[] args) throws Exception {
@@ -39,14 +40,10 @@ public class AvroToParquetEngine extends Configured implements Tool {
 		config.set(ParquetOutputFormat.COMPRESSION, "SNAPPY");
 		config.set(ParquetOutputFormat.BLOCK_SIZE, Integer.toString(128 * 1024 * 1024));
 
-		/*
-		 * instantiate dummy schema to avoid NullPointerException at reducer
-		 * initialization
-		 */
 		MessageType mt = new AvroSchemaConverter().convert(SCHEMA);
-		// MessageType mt = new MessageType("dummy");
-
 		DataWritableWriteSupport.setSchema(mt, config);
+
+		config.set("parquet.from.avro.schema", SCHEMA.toString());
 
 		Job job = Job.getInstance(config, AvroToParquetEngine.class.getSimpleName());
 
@@ -58,19 +55,9 @@ public class AvroToParquetEngine extends Configured implements Tool {
 		job.setMapOutputKeyClass(NullWritable.class);
 		job.setMapOutputValueClass(AvroToParquetArrayWritable.class);
 
-		job.setReducerClass(ParquetOutputReducer.class);
-		job.setOutputKeyClass(NullWritable.class);
-		job.setOutputValueClass(AvroToParquetArrayWritable.class);
-
-		if (3 == args.length)
-
-		{
-			Integer reducers = Integer.valueOf(args[2]);
-			job.setNumReduceTasks(reducers);
-		}
+		job.setNumReduceTasks(0);
 
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
-		// FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		ParquetOutputFormat.setOutputPath(job, new Path(args[1]));
 
 		ParquetOutputFormat.setWriteSupportClass(job, DataWritableWriteSupport.class);
