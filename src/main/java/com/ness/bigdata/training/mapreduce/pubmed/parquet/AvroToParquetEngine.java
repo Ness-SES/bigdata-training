@@ -8,7 +8,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.ql.io.parquet.write.DataWritableWriteSupport;
-import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.util.Tool;
@@ -52,8 +52,8 @@ public class AvroToParquetEngine extends Configured implements Tool {
 		job.setOutputFormatClass(ParquetOutputFormat.class);
 
 		job.setMapperClass(AvroInputMapper.class);
-		job.setMapOutputKeyClass(NullWritable.class);
-		job.setMapOutputValueClass(AvroToParquetArrayWritable.class);
+		job.setMapOutputKeyClass(Void.class);
+		job.setMapOutputValueClass(ArrayWritable.class);
 
 		job.setNumReduceTasks(0);
 

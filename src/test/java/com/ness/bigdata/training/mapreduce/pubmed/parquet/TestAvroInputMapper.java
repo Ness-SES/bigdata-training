@@ -17,9 +17,7 @@ import org.apache.hadoop.mrunit.mapreduce.MapDriver;
 import org.junit.Before;
 import org.junit.Test;
 
-import parquet.avro.AvroSchemaConverter;
 import parquet.io.api.Binary;
-import parquet.schema.MessageType;
 
 public class TestAvroInputMapper {
 
@@ -38,8 +36,8 @@ public class TestAvroInputMapper {
 	private MapDriver<AvroKey<GenericRecord>, NullWritable, Void, ArrayWritable> mapDriver;
 	private GenericRecord data1;
 	private GenericRecord data2;
-	private AvroToParquetArrayWritable expectedData1;
-	private AvroToParquetArrayWritable expectedData2;
+	private Writable[] writableData1;
+	private Writable[] writableData2;
 
 	@Before
 	public void setUp() throws IOException {
@@ -71,23 +69,19 @@ public class TestAvroInputMapper {
 		data2.put(ARTICLE_ISSN_P_PUB, "AIPP" + 1);
 		data2.put(ARTICLE_DATE_ACCEPTED, Long.valueOf((System.currentTimeMillis() - 1) / 1000L));
 
-		MessageType parquetSchema = new AvroSchemaConverter().convert(SCHEMA);
-
-		Writable[] writableData1 = new Writable[5];
+		writableData1 = new Writable[5];
 		writableData1[0] = new BinaryWritable(Binary.fromString((String) data1.get(FILE_PATH)));
 		writableData1[1] = new BinaryWritable(Binary.fromString((String) data1.get(ARTICLE_TITLE)));
 		writableData1[2] = new LongWritable((Long) data1.get(ARTICLE_PUBLISHER_ID));
 		writableData1[3] = new BinaryWritable(Binary.fromString((String) data1.get(ARTICLE_ISSN_P_PUB)));
 		writableData1[4] = new LongWritable((Long) data1.get(ARTICLE_DATE_ACCEPTED));
-		expectedData1 = new AvroToParquetArrayWritable(writableData1, parquetSchema.toString());
 
-		Writable[] writableData2 = new Writable[5];
+		writableData2 = new Writable[5];
 		writableData2[0] = new BinaryWritable(Binary.fromString((String) data2.get(FILE_PATH)));
 		writableData2[1] = new BinaryWritable(Binary.fromString((String) data2.get(ARTICLE_TITLE)));
 		writableData2[2] = new LongWritable((Long) data2.get(ARTICLE_PUBLISHER_ID));
 		writableData2[3] = new BinaryWritable(Binary.fromString((String) data2.get(ARTICLE_ISSN_P_PUB)));
 		writableData2[4] = new LongWritable((Long) data2.get(ARTICLE_DATE_ACCEPTED));
-		expectedData2 = new AvroToParquetArrayWritable(writableData2, parquetSchema.toString());
 	}
 
 	@Test
@@ -95,8 +89,8 @@ public class TestAvroInputMapper {
 		mapDriver.withInput(new AvroKey<GenericRecord>(data1), NullWritable.get());
 		mapDriver.withInput(new AvroKey<GenericRecord>(data2), NullWritable.get());
 
-		// mapDriver.withOutput(NullWritable.get(), expectedData1);
-		// mapDriver.withOutput(NullWritable.get(), expectedData2);
+		mapDriver.withOutput(null, new ArrayWritable(Writable.class, writableData1));
+		mapDriver.withOutput(null, new ArrayWritable(Writable.class, writableData2));
 
 		mapDriver.runTest();
 	}
