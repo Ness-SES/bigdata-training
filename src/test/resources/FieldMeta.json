@@ -1,0 +1,17 @@
+[{
+    "xPath":"string(/article/front/article-meta/title-group/article-title)",
+    "name":"articleTitle",
+    "type":"STRING"
+},{
+    "xPath":"/article/front/article-meta/article-id[@pub-id-type='publisher-id']/text()",
+    "name":"articlePublisherId",
+    "type":"INT"
+},{
+    "xPath":"/article/front/journal-meta/issn[@pub-type='ppub']/text()",
+    "name":"articleIssnPPub",
+    "type":"STRING"
+},{
+    "xPath":"concat(/article/front/article-meta/history/date[@ date-type='accepted']/year/text(),'-',substring(concat('0',/article/front/article-meta/history/date[@ date-type='accepted']/month/text()),string-length(/article/front/article-meta/history/date[@ date-type='accepted']/month/text())),'-',substring(concat('0',/article/front/article-meta/history/date[@ date-type='accepted']/day/text()),string-length(/article/front/article-meta/history/date[@ date-type='accepted']/day/text())))",
+    "name":"articleDateAccepted",
+    "type":"DATE_YYYY_MM_DD"
+}]
