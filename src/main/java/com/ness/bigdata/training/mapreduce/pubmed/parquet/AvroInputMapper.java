@@ -46,27 +46,25 @@ public class AvroInputMapper extends Mapper<AvroKey<GenericRecord>, NullWritable
 		}
 		boolean dataInstantiated = false;
 		for (Field field : schema.getFields()) {
+			Object value = data.get(field.name());
 			switch (field.schema().getType()) {
 			case STRING:
-				String strValue = (String) data.get(field.name());
-				if (null != strValue) {
-					resultedDataArray[field.pos()] = new BinaryWritable(
-							Binary.fromString((String) data.get(field.name())));
+				if (null != value) {
+					resultedDataArray[field.pos()] = new BinaryWritable(Binary.fromString((String) value));
 				}
 				break;
 			case LONG:
-				Long longValue = (Long) data.get(field.name());
-				if (null != longValue) {
-					resultedDataArray[field.pos()] = new LongWritable((Long) data.get(field.name()));
+				if (null != value) {
+					resultedDataArray[field.pos()] = new LongWritable((Long) value);
 				}
 				break;
 			case INT:
-				Integer intValue = (Integer) data.get(field.name());
-				if (null != intValue) {
-					resultedDataArray[field.pos()] = new IntWritable((Integer) data.get(field.name()));
+				if (null != value) {
+					resultedDataArray[field.pos()] = new IntWritable((Integer) value);
 				}
 				break;
 			default:
+				resultedDataArray[field.pos()] = null;
 				break;
 			}
 
