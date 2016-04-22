@@ -1,0 +1,13 @@
+import
+—connect
+jdbc:mysql://localhost/test
+—driver
+com.mysql.jdbc.Driver
+—username
+root
+—table
+mytable
+—target-dir
+sqoopimport2
+—where
+id > 4
