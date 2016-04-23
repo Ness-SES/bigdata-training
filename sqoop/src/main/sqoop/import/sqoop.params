@@ -6,7 +6,7 @@ com.mysql.jdbc.Driver
 —username
 root
 —table
-mytable
+import_table
 —target-dir
 sqoopimport2
 —where
