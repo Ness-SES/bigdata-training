@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 
+hostname=$(hostname)
+database=
+username=
+password=
+
 sudo -u hdfs \
 sqoop import \
-    —connect jdbc:myqsl://localhost/test \
-    —username root \
-    —table import_table \
-    —target-dir sqoopimport1
+    --connect jdbc:postgresql://$hostname:5432/${database} \
+    --username ${username} \
+    --password ${password} \
+    --table import_table \
+    --split-by id \
+    --target-dir /tmp/sqoop_import

@@ -1,5 +1,3 @@
-USE test;
-
 DROP TABLE IF EXISTS export_table;
 
 CREATE TABLE export_table (

@@ -1,5 +1,3 @@
-USE test;
-
 DROP TABLE IF EXISTS import_table;
 
 CREATE TABLE import_table (
@@ -7,5 +5,5 @@ CREATE TABLE import_table (
   name VARCHAR(20)
 );
 
-INSERT INTO test.import_table
+INSERT INTO import_table
 VALUES (0, 'zero'), (1, 'ONE'), (2, 'two'), (3, 'three'), (4, 'four'), (5, 'five'), (6, 'six'), (7, 'seven');
