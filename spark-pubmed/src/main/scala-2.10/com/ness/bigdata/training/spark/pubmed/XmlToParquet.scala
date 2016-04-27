@@ -1,4 +1,4 @@
-package com.ness.bigdata.training.spark.pupmed
+package com.ness.bigdata.training.spark.pubmed
 
 import javax.xml.parsers.SAXParserFactory
 
@@ -34,7 +34,7 @@ object XmlToParquet {
   def main(args: Array[String]): Unit = {
     Validate.isTrue(args.length == 2, "Expected 2 argument - input path to folder containing parts with file paths to process, and output path")
 
-    val conf = new SparkConf().setAppName("Testing Spark")
+    val conf = new SparkConf().setAppName(getClass.getSimpleName)
     val sc = new SparkContext(conf)
 
     val fileSystem = FileSystem.get(sc.hadoopConfiguration)
@@ -121,7 +121,8 @@ object XmlToParquet {
       articleData get "volume" map (_.toInt),
       articleData get "issue" map (_.toInt),
       articleData get "fpage" map (_.toInt),
-      articleData get "lpage" map (_.toInt))
+      articleData get "lpage" map (_.toInt),
+      articleData get "body")
   }
 
   /**
@@ -199,6 +200,8 @@ object XmlToParquet {
 
     Seq("volume", "issue", "fpage", "lpage").foreach(attr =>
       (articleMeta \ attr).headOption.map(_.text).filter(n => Try(n.toInt).isSuccess).foreach(value => articleData += (attr -> value)))
+
+    (article \ "body").headOption.map(_.text).foreach(nody => articleData += ("body" -> nody))
 
     immutable.Map() ++ articleData
   }

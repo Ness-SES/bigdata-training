@@ -1,4 +1,4 @@
-package com.ness.bigdata.training.spark.pupmed
+package com.ness.bigdata.training.spark.pubmed
 
 import org.apache.commons.lang3.Validate
 import org.apache.spark.{SparkConf, SparkContext}

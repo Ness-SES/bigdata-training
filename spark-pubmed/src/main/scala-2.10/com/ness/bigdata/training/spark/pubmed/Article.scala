@@ -1,4 +1,4 @@
-package com.ness.bigdata.training.spark.pupmed
+package com.ness.bigdata.training.spark.pubmed
 
 import java.sql.Date
 
@@ -24,5 +24,6 @@ case class Article(nlmTa: Option[String],
                    volume: Option[Int],
                    issue: Option[Int],
                    fpage: Option[Int],
-                   lpage: Option[Int]) {
+                   lpage: Option[Int],
+                   body: Option[String]) {
                    }
