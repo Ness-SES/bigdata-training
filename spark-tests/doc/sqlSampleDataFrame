@@ -1,0 +1,29 @@
+# Create a new DataFrame that contains “young users” only
+young = users.filter(users.age < 21)
+
+# Alternatively, using Pandas-like syntax
+young = users[users.age < 21]
+
+# Increment everybody’s age by 1
+young.select(young.name, young.age + 1)
+
+# Count the number of young users by gender
+young.groupBy("gender").count()
+
+# Join young users with another DataFrame called logs
+young.join(logs, logs.userId == users.userId, "left_outer")
+
+
+users = context.jdbc("jdbc:postgresql:production", "users")
+logs = context.load("/path/to/traffic.log")
+logs.join(users, logs.userId == users.userId, "left_outer") \
+  .groupBy("userId").agg({"*": "count"})
+
+
+  df = context.load("/path/to/people.jobs.json")
+  # RDD-style methods such as map, flatMap are available on DataFrames
+  # Split the bio text into multiple words.
+  words = df.select("bio").flatMap(lambda row: row.bio.split(" "))
+  # Create a new DataFrame to count the number of words
+  words_df = words.map(lambda w: Row(word=w, cnt=1)).toDF()
+  word_counts = words_df.groupBy("word").sum()

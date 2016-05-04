@@ -1,0 +1,12 @@
+Datasets, specifically:
+
+Performance optimizations –
+In many cases, the current implementation of the Dataset API does not yet leverage the additional information it has and can be slower than RDDs. Over the next several releases, we will be working on improving the performance of this new API.
+
+Custom encoders –
+while we currently autogenerate encoders for a wide variety of types, we’d like to open up an API for custom objects.
+
+Python Support.
+
+Unification of DataFrames with Datasets –
+due to compatibility guarantees, DataFrames and Datasets currently cannot share a common parent class. With Spark 2.0, we will be able to unify these abstractions with minor changes to the API, making it easy to build libraries that work with both.

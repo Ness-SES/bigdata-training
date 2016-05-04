@@ -25,6 +25,7 @@
     <modules>
         <module>mapreduce</module>
         <module>spark-pubmed</module>
+        <module>spark-tests</module>
     </modules>
 
     <repositories>
