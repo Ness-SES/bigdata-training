@@ -32,7 +32,8 @@ object XmlToParquet {
     *             containing the paths to the Pubmed articles, and the second one being the non-existing output folder
     */
   def main(args: Array[String]): Unit = {
-    Validate.isTrue(args.length == 2, "Expected 2 argument - input path to folder containing parts with file paths to process, and output path")
+    Validate.isTrue(args.length == 2, "Expected 2 argumenta - input path to folder containing parts with file paths " +
+      "to process, and output path")
 
     val conf = new SparkConf().setAppName(getClass.getSimpleName)
     val sc = new SparkContext(conf)

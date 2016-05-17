@@ -26,4 +26,4 @@ case class Article(nlmTa: Option[String],
                    fpage: Option[Int],
                    lpage: Option[Int],
                    body: Option[String]) {
-                   }
+}
