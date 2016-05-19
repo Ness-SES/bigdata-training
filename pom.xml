@@ -18,8 +18,8 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <cdh.version>cdh5.6.0</cdh.version>
-        <spark.version>1.5.0</spark.version>
+        <cdh.version>cdh5.7.0</cdh.version>
+        <spark.version>1.6.0</spark.version>
 
         <solrj.version>6.0.0</solrj.version>
     </properties>
@@ -132,7 +132,6 @@
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
                 <version>${solrj.version}</version>
-                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

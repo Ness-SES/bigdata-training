@@ -3,6 +3,7 @@ package com.ness.bigdata.training.spark.pubmed
 import java.util.UUID
 
 import org.apache.commons.lang3.Validate
+import org.apache.http.impl.client.SystemDefaultHttpClient
 import org.apache.solr.client.solrj.impl.CloudSolrClient
 import org.apache.solr.common.SolrInputDocument
 import org.apache.spark.sql.SQLContext
@@ -46,10 +47,9 @@ object SolrFeeder {
         row.schema.fieldNames.foreach(fieldName => document.addField(fieldName, row.getAs(fieldName)))
         document.setField("id", UUID.randomUUID().toString)
         document
-      })
-
-      .foreachPartition(documents => {
-        val solrClient = new CloudSolrClient(zkHost)
+      }).foreachPartition(documents => {
+        val httpClient = new SystemDefaultHttpClient()
+        val solrClient = new CloudSolrClient(zkHost, httpClient)
         solrClient.setDefaultCollection(collection)
         documents.grouped(BatchSize).foreach(batch => {
           solrClient.add(batch.asJava)
