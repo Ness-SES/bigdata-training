@@ -47,15 +47,14 @@ object XmlToParquet {
     val filesBySize: RDD[Array[String]] = rows.map(_.split("\\s+"))
 
     val articles = filesBySize
-      .map(_ (1))
-      .map(new Path(_))
-      .map(getRootElement(_))
-      .flatMap(article => {
+      .flatMap(files => {
+        val path = files(1)
+        val article = getRootElement(new Path(path))
         val articleData: immutable.Map[String, String] = getArticleData(article)
         val authorsData: immutable.Set[immutable.Map[String, String]] = getAuthorsData(article)
 
         for (authorData <- authorsData)
-          yield newArticle(articleData, authorData)
+          yield newArticle(path, articleData, authorData)
       })
 
     val sqlContext = new SQLContext(sc)
@@ -92,8 +91,9 @@ object XmlToParquet {
     * @param authorData  data about the author
     * @return the new [[Article]]
     */
-  def newArticle(articleData: Map[String, String], authorData: Map[String, String]) = {
+  def newArticle(path: String, articleData: Map[String, String], authorData: Map[String, String]) = {
     Article(
+      ArticleId(path),
       articleData get "nlm-ta",
       articleData get "iso-abbrev",
       articleData get "journal-title",

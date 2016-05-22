@@ -5,7 +5,8 @@ import java.sql.Date
 /**
   * @author radu.almasan@ness.com
   */
-case class Article(nlmTa: Option[String],
+case class Article(articleId: ArticleId,
+                   nlmTa: Option[String],
                    isoAbbrev: Option[String],
                    journalTitle: Option[String],
                    ppub: Option[String],
